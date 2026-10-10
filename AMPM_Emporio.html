@@ -405,7 +405,7 @@
     <div class="filter-row" id="statusFilter"></div>
     <div id="trackerContent"></div>
     <button class="btn-export" onclick="exportCSV()">&#128196; Export to CSV</button>
-    <div class="note">Data is stored locally on this device's browser.</div>
+    <div class="note">Data syncs to cloud — accessible from any device.</div>
   </div>
 </div>
 
@@ -421,20 +421,27 @@
   var currentFilter = 'active';
   var messageLog = [];
 
-  // ── localStorage keys ──
-  var todayKey = 'ampm_log_' + STORE_KEY + '_' + new Date().toISOString().slice(0,10);
-  var mtoKey = 'ampm_mto_' + STORE_KEY;
-  var altKey = 'ampm_alt_' + STORE_KEY;
-  var senderKey = 'ampm_sender_' + STORE_KEY;
+  // ── Supabase config ──
+  var SB_URL = 'https://exloaxjttpvagoftsjbt.supabase.co/rest/v1';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4bG9heGp0dHB2YWdvZnRzamJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MzE1MzAsImV4cCI6MjEwNzIwNzUzMH0.Po0m9YKci5vDf0A61usu7OKL6Jx9mJOd8ls4CWOvZig';
+  function sbH(prefer) { return {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':prefer||'return=minimal'}; }
+  function sbGet(table, extra) { return fetch(SB_URL+'/'+table+'?store=eq.'+STORE_KEY+(extra||''),{headers:sbH()}).then(function(r){return r.json()}).catch(function(){return []}); }
+  function sbUpsert(table, row) { var r=Object.assign({},row); r.store=STORE_KEY; fetch(SB_URL+'/'+table,{method:'POST',headers:sbH('resolution=merge-duplicates,return=minimal'),body:JSON.stringify(r)}).catch(function(){}); }
+  function sbInsert(table, row) { var r=Object.assign({},row); r.store=STORE_KEY; fetch(SB_URL+'/'+table,{method:'POST',headers:sbH('return=minimal'),body:JSON.stringify(r)}).catch(function(){}); }
 
-  // ── Load saved data ──
-  var mtoData = loadJSON(mtoKey) || [];
-  var altData = loadJSON(altKey) || [];
-  try { var s = localStorage.getItem(todayKey); if (s) { messageLog = JSON.parse(s); renderLog(); } } catch(e) {}
+  // ── Sender name (per-device) ──
+  var senderKey = 'ampm_sender_' + STORE_KEY;
   try { var sv = localStorage.getItem(senderKey); if (sv) document.getElementById('senderName').value = sv; } catch(e) {}
 
-  function loadJSON(k) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e) { return null; } }
-  function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+  // ── Load data from Supabase ──
+  var mtoData = [];
+  var altData = [];
+  (function loadCloud() {
+    sbGet('mto_orders').then(function(d) { if(d&&d.length) { mtoData=d; if(!document.getElementById('panelTracker').classList.contains('hidden')) renderDashboard(); } });
+    sbGet('alteration_orders').then(function(d) { if(d&&d.length) { altData=d; if(!document.getElementById('panelTracker').classList.contains('hidden')) renderDashboard(); } });
+    var today = new Date().toISOString().slice(0,10);
+    sbGet('message_logs','&log_date=eq.'+today+'&order=id.desc').then(function(d) { if(d&&d.length) { messageLog=d.map(function(l){return{client:l.client,template:l.template,time:l.send_time}}); renderLog(); } });
+  })();
   function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
   function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
@@ -611,8 +618,10 @@
           entry.style = document.getElementById('mtoStyle').value.trim();
         }
         mtoData.push(entry);
+        sbUpsert('mto_orders', entry);
+      } else {
+        sbUpsert('mto_orders', existing);
       }
-      saveJSON(mtoKey, mtoData);
     }
     if (selectedTemplate.startsWith('alt_')) {
       var altMap = {alt_received:'Received', alt_ready:'Ready', alt_dispatch:'Dispatched', alt_delivered:'Delivered'};
@@ -628,14 +637,17 @@
           aEntry.dueDate = document.getElementById('altRD').value;
         }
         altData.push(aEntry);
+        sbUpsert('alteration_orders', aEntry);
+      } else {
+        sbUpsert('alteration_orders', aExist);
       }
-      saveJSON(altKey, altData);
     }
 
     // Log
     var tplNames = {mto_confirm:'Order Confirmation', mto_delay:'Delay Intimation', mto_ready:'Ready for Collection', mto_dispatch:'Post-Dispatch', alt_received:'Alt. Received', alt_ready:'Alt. Ready', alt_dispatch:'Alt. Dispatched', alt_delivered:'Alt. Delivered', care_thankyou:'Thank You', care_followup:'Follow-up'};
-    messageLog.unshift({client: cn, template: tplNames[selectedTemplate], time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});
-    try { localStorage.setItem(todayKey, JSON.stringify(messageLog)); } catch(e) {}
+    var sendTime = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    messageLog.unshift({client: cn, template: tplNames[selectedTemplate], time: sendTime});
+    sbInsert('message_logs', {client: cn, template: tplNames[selectedTemplate], send_time: sendTime, log_date: new Date().toISOString().slice(0,10)});
     renderLog();
 
     window.open(url, 'ampm_whatsapp');
