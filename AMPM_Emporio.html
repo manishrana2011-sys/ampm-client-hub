@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AMPM Emporio — Client Hub</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --cream: #F4ECE3;
+    --brown: #864624;
+    --brown-light: #a8653d;
+    --brown-dark: #6b371c;
+    --text-dark: #2c1a0e;
+    --text-mid: #5a3f2a;
+    --text-light: #8a7060;
+    --border: #d4c4b4;
+    --white: #ffffff;
+    --bg: #faf7f3;
+    --green: #25D366;
+    --green-dark: #128C7E;
+    --red-soft: #c0392b;
+    --red-bg: #fdf0ef;
+    --orange: #e67e22;
+    --orange-bg: #fef5ec;
+    --blue: #2980b9;
+    --blue-bg: #e3f2fd;
+    --purple: #7b1fa2;
+    --purple-bg: #f3e5f5;
+    --green2: #2e7d32;
+    --green2-bg: #e8f5e9;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-dark);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 540px; margin: 0 auto; padding: 0 16px 40px; }
+
+  /* Header */
+  .header {
+    background: var(--brown);
+    padding: 20px 16px 18px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header h1 {
+    font-family: 'EB Garamond', Georgia, serif;
+    color: var(--cream);
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 3px;
+  }
+  .header p {
+    color: #c9b09a;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Nav */
+  .nav { display: flex; background: var(--white); border-radius: 10px; margin-top: 16px; border: 1px solid #e8ddd2; overflow: hidden; }
+  .nav-btn {
+    flex: 1; padding: 14px; text-align: center; font-size: 12px; font-weight: 600;
+    color: var(--text-light); cursor: pointer; background: var(--white); transition: 0.2s;
+    text-transform: uppercase; letter-spacing: 0.5px; border: none; font-family: 'Inter', sans-serif;
+  }
+  .nav-btn.active { color: var(--white); background: var(--brown); }
+
+  /* Section */
+  .section {
+    background: var(--white); border-radius: 10px; padding: 20px 18px;
+    margin-top: 14px; border: 1px solid #e8ddd2;
+  }
+  .section-label {
+    font-size: 11px; font-weight: 600; color: var(--brown);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px;
+  }
+
+  /* Inputs */
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--text-mid); margin: 14px 0 6px; }
+  label:first-of-type { margin-top: 0; }
+  input, select, textarea {
+    width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+    font-size: 15px; font-family: 'Inter', sans-serif; color: var(--text-dark);
+    background: var(--white); -webkit-appearance: none; appearance: none;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--brown); }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23864624' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer;
+  }
+  textarea { resize: none; min-height: 60px; }
+
+  /* Phone row */
+  .phone-row { display: flex; gap: 8px; }
+  .phone-row .cc { width: 90px; flex-shrink: 0; text-align: center; }
+  .phone-row .pn { flex: 1; }
+
+  /* Mode grid (3 cols) */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .mode-card {
+    padding: 14px 8px; border: 2px solid var(--border); border-radius: 10px;
+    cursor: pointer; text-align: center; background: var(--white); transition: 0.2s;
+  }
+  .mode-card:hover { border-color: var(--brown-light); background: #fdf9f5; }
+  .mode-card.active { border-color: var(--brown); background: #f9f0e7; }
+  .mode-card .m-icon { font-size: 22px; margin-bottom: 4px; }
+  .mode-card .m-name { font-size: 11px; font-weight: 600; }
+  .mode-card .m-sub { font-size: 9px; color: var(--text-light); margin-top: 2px; }
+
+  /* Template grid (2 cols) */
+  .template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .template-card {
+    padding: 14px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+    cursor: pointer; text-align: center; background: var(--white); transition: 0.2s;
+  }
+  .template-card:hover { border-color: var(--brown-light); background: #fdf9f5; }
+  .template-card.active { border-color: var(--brown); background: #f9f0e7; }
+  .template-card .t-icon { font-size: 20px; margin-bottom: 5px; }
+  .template-card .t-name { font-size: 11px; font-weight: 600; line-height: 1.3; }
+  .template-card .t-sub { font-size: 9px; color: var(--text-light); margin-top: 2px; }
+
+  /* Conditional fields */
+  .conditional { display: none; }
+  .conditional.visible { display: block; }
+
+  /* Preview */
+  .preview-box {
+    background: #f0ebe4; border-radius: 8px; padding: 16px; font-size: 14px;
+    line-height: 1.7; white-space: pre-wrap; word-wrap: break-word;
+    max-height: 300px; overflow-y: auto; border-left: 3px solid var(--brown);
+  }
+
+  /* Buttons */
+  .btn-send {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 16px; border: none; border-radius: 10px;
+    font-size: 16px; font-weight: 600; font-family: 'Inter', sans-serif;
+    cursor: pointer; margin-top: 16px; color: var(--white); background: var(--green-dark);
+  }
+  .btn-send:hover { background: #0e7a6b; }
+  .btn-send:active { transform: scale(0.98); }
+  .btn-send svg { width: 22px; height: 22px; fill: white; }
+  .btn-reset {
+    display: block; width: 100%; padding: 14px; border: 1.5px solid var(--border);
+    border-radius: 10px; background: var(--white); font-size: 14px; font-weight: 500;
+    font-family: 'Inter', sans-serif; color: var(--text-mid); cursor: pointer; margin-top: 10px;
+  }
+  .btn-export {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 14px; border: 1.5px solid var(--brown);
+    border-radius: 10px; background: var(--white); font-size: 13px; font-weight: 600;
+    font-family: 'Inter', sans-serif; color: var(--brown); cursor: pointer; margin-top: 14px;
+  }
+  .btn-export:hover { background: #fdf9f5; }
+
+  /* Error */
+  .error-msg {
+    background: var(--red-bg); border: 1px solid #e6b8b3; color: var(--red-soft);
+    padding: 12px 14px; border-radius: 8px; font-size: 13px; margin-top: 12px;
+    display: none; line-height: 1.5;
+  }
+  .error-msg.show { display: block; }
+
+  /* Balance row */
+  .bal-row { display: flex; gap: 8px; margin-top: 6px; }
+  .bal-row select { width: 55%; }
+  .bal-row input { width: 45%; }
+
+  /* Log */
+  .log-entry {
+    padding: 12px 0; border-bottom: 1px solid #ede5dc; font-size: 13px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .log-left { flex: 1; }
+  .log-name { font-weight: 600; }
+  .log-detail { color: var(--text-light); margin-top: 2px; font-size: 12px; }
+  .log-time { color: var(--text-light); font-size: 11px; white-space: nowrap; margin-left: 12px; }
+  .empty-log { text-align: center; color: var(--text-light); font-size: 13px; padding: 20px 0; }
+  .log-count {
+    display: inline-block; background: var(--brown); color: var(--cream);
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+    margin-left: 8px; vertical-align: middle;
+  }
+
+  /* ---- Dashboard / Tracker ---- */
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+  .stat-card {
+    background: var(--white); border: 1px solid #e8ddd2; border-radius: 8px;
+    padding: 10px 6px; text-align: center;
+  }
+  .stat-card .sn { font-size: 22px; font-weight: 700; }
+  .stat-card .sl { font-size: 9px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+  .stat-card.overdue .sn { color: var(--red-soft); }
+
+  .filter-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 14px; }
+  .filter-chip {
+    padding: 7px 12px; border: 1.5px solid var(--border); border-radius: 18px;
+    font-size: 11px; font-weight: 500; font-family: 'Inter', sans-serif;
+    cursor: pointer; background: var(--white); color: var(--text-mid);
+  }
+  .filter-chip.active { background: var(--brown); color: var(--white); border-color: var(--brown); }
+  .filter-chip .fc {
+    background: rgba(0,0,0,0.1); padding: 1px 6px; border-radius: 8px; font-size: 9px; margin-left: 3px;
+  }
+  .filter-chip.active .fc { background: rgba(255,255,255,0.3); }
+
+  .tk-card {
+    background: var(--white); border: 1px solid #e8ddd2; border-radius: 10px;
+    padding: 14px 16px; margin-top: 10px;
+  }
+  .tk-card.overdue { border-left: 4px solid var(--red-soft); }
+  .tk-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .tk-client { font-size: 14px; font-weight: 600; }
+  .tk-ref { font-size: 10px; color: var(--text-light); font-family: monospace; margin-top: 2px; }
+
+  .status-badge {
+    display: inline-block; font-size: 9px; font-weight: 600; padding: 3px 9px;
+    border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .sb-confirmed { background: var(--orange-bg); color: var(--orange); }
+  .sb-delayed { background: var(--red-bg); color: var(--red-soft); }
+  .sb-received { background: var(--orange-bg); color: var(--orange); }
+  .sb-ready { background: var(--green2-bg); color: var(--green2); }
+  .sb-dispatched { background: var(--blue-bg); color: var(--blue); }
+  .sb-delivered { background: var(--purple-bg); color: var(--purple); }
+
+  .tk-details { margin-top: 8px; font-size: 12px; color: var(--text-mid); line-height: 1.7; }
+  .tk-row { display: flex; justify-content: space-between; align-items: center; }
+  .tk-label { color: var(--text-light); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tk-overdue { color: var(--red-soft); font-size: 11px; font-weight: 600; margin-top: 5px; }
+  .tk-ok { color: var(--green2); font-size: 11px; font-weight: 600; margin-top: 5px; }
+  .tk-warn { color: var(--orange); font-size: 11px; font-weight: 600; margin-top: 5px; }
+  .tk-pay {
+    margin-top: 6px; padding: 5px 9px; border-radius: 6px;
+    font-size: 11px; font-weight: 600; display: inline-block;
+  }
+  .pay-full { background: var(--green2-bg); color: var(--green2); }
+  .pay-partial { background: var(--red-bg); color: var(--red-soft); }
+
+  .empty-state { text-align: center; padding: 30px 16px; color: var(--text-light); font-size: 13px; }
+  .empty-state .ei { font-size: 36px; margin-bottom: 8px; }
+
+  .dash-tabs { display: flex; background: var(--white); border-radius: 10px; border: 1px solid #e8ddd2; overflow: hidden; margin-top: 14px; }
+  .dash-tab {
+    flex: 1; padding: 12px; text-align: center; font-size: 12px; font-weight: 600;
+    color: var(--text-light); cursor: pointer; background: var(--white); transition: 0.2s;
+    border: none; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .dash-tab.active { color: var(--white); background: var(--brown); }
+
+  .note { text-align: center; font-size: 10px; color: var(--text-light); margin-top: 14px; line-height: 1.5; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 400px) {
+    .mode-grid { gap: 6px; } .mode-card { padding: 10px 5px; }
+    .template-grid { gap: 6px; } .template-card { padding: 11px 8px; }
+    .section { padding: 16px 14px; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>AMPM</h1>
+  <p>Emporio · Client Hub</p>
+</div>
+
+<div class="container">
+  <div class="nav">
+    <div class="nav-btn active" onclick="navTo('send')">Send Message</div>
+    <div class="nav-btn" onclick="navTo('tracker')">Tracker</div>
+  </div>
+
+  <!-- ===== SEND MESSAGE PANEL ===== -->
+  <div id="panelSend">
+
+    <!-- Category -->
+    <div class="section">
+      <div class="section-label">Message Category</div>
+      <div class="mode-grid">
+        <div class="mode-card" onclick="setMode('mto',this)"><div class="m-icon">&#9997;</div><div class="m-name">MTO</div><div class="m-sub">Order updates</div></div>
+        <div class="mode-card" onclick="setMode('alt',this)"><div class="m-icon">&#9986;</div><div class="m-name">Alteration</div><div class="m-sub">Updates</div></div>
+        <div class="mode-card" onclick="setMode('care',this)"><div class="m-icon">&#128147;</div><div class="m-name">Client Care</div><div class="m-sub">Thank you</div></div>
+      </div>
+    </div>
+
+    <!-- Sender & Client -->
+    <div class="section hidden" id="senderSec">
+      <div class="section-label">Sender &amp; Client</div>
+      <label>Your Name</label>
+      <input type="text" id="senderName" placeholder="e.g. Manish" autocomplete="off">
+      <label>Client Name</label>
+      <input type="text" id="clientName" placeholder="e.g. Ritu Modi" autocomplete="off">
+      <label>Client WhatsApp Number</label>
+      <div class="phone-row">
+        <input type="tel" id="cc" class="cc" value="+91">
+        <input type="tel" id="pn" class="pn" placeholder="98XXXXXXXX" inputmode="numeric">
+      </div>
+    </div>
+
+    <!-- MTO Templates -->
+    <div class="section hidden" id="mtoTpl">
+      <div class="section-label">MTO Message Type</div>
+      <div class="template-grid">
+        <div class="template-card" data-t="mto_confirm" onclick="selTpl(this)"><div class="t-icon">&#10003;</div><div class="t-name">Order Confirmation</div><div class="t-sub">Within 24 hrs</div></div>
+        <div class="template-card" data-t="mto_delay" onclick="selTpl(this)"><div class="t-icon">&#9203;</div><div class="t-name">Delay Intimation</div><div class="t-sub">Proactive</div></div>
+        <div class="template-card" data-t="mto_ready" onclick="selTpl(this)"><div class="t-icon">&#128230;</div><div class="t-name">Ready to Collect</div><div class="t-sub">In store</div></div>
+        <div class="template-card" data-t="mto_dispatch" onclick="selTpl(this)"><div class="t-icon">&#128666;</div><div class="t-name">Post-Dispatch</div><div class="t-sub">Shipped</div></div>
+      </div>
+      <div id="f_mto_confirm" class="conditional">
+        <label>Style Name</label><input type="text" id="mtoStyle" placeholder="e.g. Ivory Chanderi Anarkali">
+        <label>Committed Delivery Date</label><input type="date" id="mtoDD">
+        <label>Payment Status</label>
+        <div class="bal-row">
+          <select id="mtoPay" onchange="togBal()"><option value="Paid in Full">Paid in Full</option><option value="50% Advance Paid">50% Advance</option><option value="Advance Paid">Advance (custom)</option></select>
+          <input type="text" id="mtoBal" placeholder="Balance &#8377;" style="display:none">
+        </div>
+      </div>
+      <div id="f_mto_delay" class="conditional">
+        <label>Delay Reason</label>
+        <select id="delayR"><option value="due to high demand in production">High demand in production</option><option value="due to additional quality checks on your piece">Additional quality checks</option><option value="to ensure the best possible finish for your order">Best possible finish</option></select>
+        <label>Revised Delivery Date</label><input type="date" id="mtoND">
+      </div>
+      <div id="f_mto_dispatch" class="conditional">
+        <label>Courier Partner</label><input type="text" id="mtoC" placeholder="e.g. Delhivery">
+        <label>Tracking Number</label><input type="text" id="mtoTr" placeholder="e.g. 1234567890">
+        <label>Expected Delivery</label><input type="date" id="mtoED">
+      </div>
+    </div>
+
+    <!-- Alteration Templates -->
+    <div class="section hidden" id="altTpl">
+      <div class="section-label">Alteration Message Type</div>
+      <div class="template-grid">
+        <div class="template-card" data-t="alt_received" onclick="selTpl(this)"><div class="t-icon">&#128207;</div><div class="t-name">Received</div><div class="t-sub">Outfit accepted</div></div>
+        <div class="template-card" data-t="alt_ready" onclick="selTpl(this)"><div class="t-icon">&#10004;</div><div class="t-name">Ready</div><div class="t-sub">Collection</div></div>
+        <div class="template-card" data-t="alt_dispatch" onclick="selTpl(this)"><div class="t-icon">&#128666;</div><div class="t-name">Dispatched</div><div class="t-sub">Courier/porter</div></div>
+        <div class="template-card" data-t="alt_delivered" onclick="selTpl(this)"><div class="t-icon">&#9989;</div><div class="t-name">Delivered</div><div class="t-sub">Confirm</div></div>
+      </div>
+      <div id="f_alt_received" class="conditional">
+        <label>Style Name</label><input type="text" id="altSt" placeholder="e.g. Ivory Chanderi Anarkali">
+        <label>Alteration Details</label><textarea id="altDt" placeholder="e.g. Sleeve shortened by 1 inch"></textarea>
+        <label>Expected Ready Date</label><input type="date" id="altRD">
+      </div>
+      <div id="f_alt_dispatch" class="conditional">
+        <label>Courier / Porter</label><input type="text" id="altC" placeholder="e.g. Store Porter">
+        <label>Tracking Number</label><input type="text" id="altTr" placeholder="N/A for porter">
+        <label>Expected Delivery</label><input type="date" id="altED">
+      </div>
+    </div>
+
+    <!-- Client Care Templates -->
+    <div class="section hidden" id="careTpl">
+      <div class="section-label">Client Care Message</div>
+      <div class="template-grid">
+        <div class="template-card" data-t="care_thankyou" onclick="selTpl(this)"><div class="t-icon">&#128150;</div><div class="t-name">Purchase Thank You</div><div class="t-sub">Within 24 hrs</div></div>
+        <div class="template-card" data-t="care_followup" onclick="selTpl(this)"><div class="t-icon">&#127775;</div><div class="t-name">Follow-up</div><div class="t-sub">5-7 days after</div></div>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="section hidden" id="prevSec">
+      <div class="section-label">Message Preview</div>
+      <div class="preview-box" id="prevBox"></div>
+      <div class="error-msg" id="errMsg"></div>
+      <button class="btn-send" onclick="sendMsg()">
+        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.122 1.523 5.857L.06 23.524l5.832-1.529A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82c-1.98 0-3.842-.528-5.443-1.453l-.39-.232-4.047 1.062 1.08-3.946-.254-.403A9.786 9.786 0 012.18 12c0-5.422 4.398-9.82 9.82-9.82 5.422 0 9.82 4.398 9.82 9.82 0 5.422-4.398 9.82-9.82 9.82z"/></svg>
+        Send via WhatsApp
+      </button>
+      <button class="btn-reset" onclick="resetForm()">Clear &amp; Send Another</button>
+    </div>
+
+    <!-- Today's Log -->
+    <div class="section">
+      <div class="section-label">Today's Messages <span class="log-count" id="logCount">0</span></div>
+      <div id="logContainer"><div class="empty-log">No messages sent yet today</div></div>
+    </div>
+
+    <div class="note">Phone numbers are never stored. All data stays on this device only.</div>
+  </div>
+
+  <!-- ===== TRACKER PANEL ===== -->
+  <div id="panelTracker" class="hidden">
+    <div class="dash-tabs">
+      <button class="dash-tab active" onclick="dTab('mto')">MTO Tracker</button>
+      <button class="dash-tab" onclick="dTab('alt')">Alteration Tracker</button>
+    </div>
+    <div class="stat-row" id="statRow"></div>
+    <div class="section-label" style="margin-top:14px">Status Filter</div>
+    <div class="filter-row" id="statusFilter"></div>
+    <div id="trackerContent"></div>
+    <button class="btn-export" onclick="exportCSV()">&#128196; Export to CSV</button>
+    <div class="note">Data is stored locally on this device's browser.</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var STORE = 'Emporio';
+  var STORE_KEY = 'emporio';
+  var currentMode = null;
+  var selectedTemplate = null;
+  var currentDashTab = 'mto';
+  var currentFilter = 'active';
+  var messageLog = [];
+
+  // ── localStorage keys ──
+  var todayKey = 'ampm_log_' + STORE_KEY + '_' + new Date().toISOString().slice(0,10);
+  var mtoKey = 'ampm_mto_' + STORE_KEY;
+  var altKey = 'ampm_alt_' + STORE_KEY;
+  var senderKey = 'ampm_sender_' + STORE_KEY;
+
+  // ── Load saved data ──
+  var mtoData = loadJSON(mtoKey) || [];
+  var altData = loadJSON(altKey) || [];
+  try { var s = localStorage.getItem(todayKey); if (s) { messageLog = JSON.parse(s); renderLog(); } } catch(e) {}
+  try { var sv = localStorage.getItem(senderKey); if (sv) document.getElementById('senderName').value = sv; } catch(e) {}
+
+  function loadJSON(k) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e) { return null; } }
+  function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  // ── Nav ──
+  window.navTo = function(p) {
+    document.getElementById('panelSend').classList.toggle('hidden', p !== 'send');
+    document.getElementById('panelTracker').classList.toggle('hidden', p !== 'tracker');
+    var btns = document.querySelectorAll('.nav-btn');
+    btns[0].classList.toggle('active', p === 'send');
+    btns[1].classList.toggle('active', p === 'tracker');
+    if (p === 'tracker') renderDashboard();
+  };
+
+  // ── Mode ──
+  window.setMode = function(m, el) {
+    currentMode = m; selectedTemplate = null;
+    document.querySelectorAll('.mode-card').forEach(function(c) { c.classList.remove('active'); });
+    el.classList.add('active');
+    document.getElementById('senderSec').classList.remove('hidden');
+    document.getElementById('mtoTpl').classList.toggle('hidden', m !== 'mto');
+    document.getElementById('altTpl').classList.toggle('hidden', m !== 'alt');
+    document.getElementById('careTpl').classList.toggle('hidden', m !== 'care');
+    document.getElementById('prevSec').classList.add('hidden');
+    document.querySelectorAll('.template-card').forEach(function(c) { c.classList.remove('active'); });
+    document.querySelectorAll('.conditional').forEach(function(c) { c.classList.remove('visible'); });
+  };
+
+  // ── Template ──
+  window.selTpl = function(el) {
+    el.closest('.section').querySelectorAll('.template-card').forEach(function(c) { c.classList.remove('active'); });
+    el.classList.add('active');
+    selectedTemplate = el.dataset.t;
+    document.querySelectorAll('.conditional').forEach(function(c) { c.classList.remove('visible'); });
+    var fld = document.getElementById('f_' + selectedTemplate);
+    if (fld) fld.classList.add('visible');
+    document.getElementById('prevSec').classList.remove('hidden');
+    updPrev();
+  };
+
+  window.togBal = function() {
+    document.getElementById('mtoBal').style.display = document.getElementById('mtoPay').value === 'Paid in Full' ? 'none' : 'block';
+  };
+
+  // Live preview
+  document.querySelectorAll('input,select,textarea').forEach(function(el) {
+    el.addEventListener('input', updPrev);
+    el.addEventListener('change', updPrev);
+  });
+
+  function updPrev() { if (selectedTemplate) document.getElementById('prevBox').textContent = buildMsg(); }
+
+  function fD(d) {
+    if (!d) return '';
+    var p = d.split('-');
+    var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return parseInt(p[2]) + ' ' + mo[parseInt(p[1])-1] + ' ' + p[0];
+  }
+
+  function buildMsg() {
+    var c = document.getElementById('clientName').value.trim() || '[Client]';
+    var s = document.getElementById('senderName').value.trim() || '[Name]';
+    var sign = s + ' | AMPM ' + STORE;
+
+    if (selectedTemplate === 'mto_confirm') {
+      var dd = fD(document.getElementById('mtoDD').value) || '[Date]';
+      return 'Dear ' + c + ',\n\nThank you for placing your order with AMPM. We’ve received your custom order details and have begun working on it.\n\nExpected Delivery Date: ' + dd + '\n\nWe will keep you updated on the progress. Please feel free to reach out anytime.\n\nWarm regards,\n' + sign;
+    }
+    if (selectedTemplate === 'mto_delay') {
+      var r = document.getElementById('delayR').value;
+      var nd = fD(document.getElementById('mtoND').value) || '[Date]';
+      return 'Dear ' + c + ',\n\nWe wanted to proactively reach out regarding your MTO order.\n\nWe regret to inform you that your order is experiencing a slight delay ' + r + '.\n\nYour Revised Expected Delivery Date: ' + nd + '\n\nWe sincerely apologise for the inconvenience. Please be assured we are closely monitoring your order.\n\nThank you for your patience.\n\nWarm regards,\n' + sign;
+    }
+    if (selectedTemplate === 'mto_ready') {
+      return 'Dear ' + c + ',\n\nGreat news — your AMPM MTO order has arrived at our store and is ready for collection.\n\nIf you would like us to arrange delivery to your address, please let us know.\n\nWe look forward to welcoming you.\n\nWarm regards,\n' + sign;
+    }
+    if (selectedTemplate === 'mto_dispatch') {
+      var mc = document.getElementById('mtoC').value.trim() || '[Courier]';
+      var mt = document.getElementById('mtoTr').value.trim() || '[Tracking]';
+      var me = fD(document.getElementById('mtoED').value) || '[Date]';
+      return 'Dear ' + c + ',\n\nYour AMPM MTO order has been dispatched.\n\nShipment Details:\n• Courier: ' + mc + '\n• Tracking: ' + mt + '\n• Expected Delivery: ' + me + '\n\nPlease reach out if you need any assistance.\n\nWe hope you love your new AMPM piece.\n\nWarm regards,\n' + sign;
+    }
+    if (selectedTemplate === 'alt_received') {
+      var st = document.getElementById('altSt').value.trim() || '[Style]';
+      var dt = document.getElementById('altDt').value.trim() || '[Details]';
+      var rd = fD(document.getElementById('altRD').value) || '[Date]';
+      return 'Dear ' + c + ',\n\nThank you for visiting AMPM ' + STORE + '. Your outfit has been received for alteration.\n\nOutfit: ' + st + '\nAlteration: ' + dt + '\nExpected Ready Date: ' + rd + '\n\nWe will notify you once ready.\n\nWarm regards,\n' + sign;
+    }
+    if (selectedTemplate === 'alt_ready') {
+      return 'Dear ' + c + ',\n\nGreat news — your alteration is complete and ready for collection at AMPM ' + STORE + '.\n\nIf you would like delivery to your address, please let us know.\n\nWe look forward to welcoming you.\n\nWarm regards,\n' + sign;
+    }
+    if (selectedTemplate === 'alt_dispatch') {
+      var ac = document.getElementById('altC').value.trim() || '[Courier]';
+      var at2 = document.getElementById('altTr').value.trim() || '[Tracking]';
+      var ae = fD(document.getElementById('altED').value) || '[Date]';
+      return 'Dear ' + c + ',\n\nYour altered outfit has been dispatched.\n\nDispatch Details:\n• Courier/Porter: ' + ac + '\n• Tracking: ' + at2 + '\n• Expected Delivery: ' + ae + '\n\nPlease reach out if you need assistance.\n\nWarm regards,\n' + sign;
+    }
+    if (selectedTemplate === 'alt_delivered') {
+      return 'Dear ' + c + ',\n\nWe hope your altered AMPM outfit is exactly as you envisioned.\n\nKindly reply ‘Received’ to confirm. Your confirmation helps us ensure every order is accounted for.\n\nThank you for choosing AMPM.\n\nWarm regards,\n' + sign;
+    }
+    if (selectedTemplate === 'care_thankyou') {
+      return 'Dear ' + c + ',\n\nThank you for your recent purchase at AMPM ' + STORE + '. It was a pleasure assisting you.\n\nWe hope you love your new piece. Should you need styling, care, or alterations assistance, please don’t hesitate to reach out.\n\nWe look forward to welcoming you again.\n\nWarm regards,\n' + sign;
+    }
+    if (selectedTemplate === 'care_followup') {
+      return 'Dear ' + c + ',\n\nWe hope you’re enjoying your AMPM piece.\n\nWe’d love to know how it fits into your wardrobe. Should you need styling, care, or alterations, we’re always here.\n\nThank you for choosing AMPM.\n\nWarm regards,\n' + sign;
+    }
+    return '';
+  }
+
+  // ── Validation ──
+  function validate() {
+    var e = [];
+    if (!currentMode) e.push('Select message category');
+    if (!document.getElementById('senderName').value.trim()) e.push('Enter your name');
+    if (!document.getElementById('clientName').value.trim()) e.push('Enter client name');
+    var ph = document.getElementById('pn').value.trim();
+    if (!ph) e.push('Enter phone number');
+    else if (!/^\d{7,15}$/.test(ph.replace(/[\s-]/g,''))) e.push('Valid phone number required');
+    if (!selectedTemplate) e.push('Select message type');
+    if (selectedTemplate === 'mto_confirm') {
+      if (!document.getElementById('mtoDD').value) e.push('Enter delivery date');
+      if (document.getElementById('mtoPay').value !== 'Paid in Full' && !document.getElementById('mtoBal').value.trim()) e.push('Enter balance amount');
+    }
+    if (selectedTemplate === 'mto_delay' && !document.getElementById('mtoND').value) e.push('Enter revised date');
+    if (selectedTemplate === 'mto_dispatch') {
+      if (!document.getElementById('mtoC').value.trim()) e.push('Enter courier');
+      if (!document.getElementById('mtoTr').value.trim()) e.push('Enter tracking number');
+      if (!document.getElementById('mtoED').value) e.push('Enter delivery date');
+    }
+    if (selectedTemplate === 'alt_received') {
+      if (!document.getElementById('altSt').value.trim()) e.push('Enter style');
+      if (!document.getElementById('altDt').value.trim()) e.push('Enter alteration details');
+      if (!document.getElementById('altRD').value) e.push('Enter ready date');
+    }
+    if (selectedTemplate === 'alt_dispatch') {
+      if (!document.getElementById('altC').value.trim()) e.push('Enter courier/porter');
+      if (!document.getElementById('altED').value) e.push('Enter delivery date');
+    }
+    return e;
+  }
+
+  // ── Send ──
+  window.sendMsg = function() {
+    var errs = validate(), el = document.getElementById('errMsg');
+    if (errs.length) { el.textContent = errs.join('. ') + '.'; el.classList.add('show'); return; }
+    el.classList.remove('show');
+
+    var code = document.getElementById('cc').value.trim().replace(/[^0-9+]/g,'');
+    var phone = document.getElementById('pn').value.trim().replace(/[\s-]/g,'');
+    var full = (code + phone).replace(/[^0-9]/g,'');
+    var msg = buildMsg(), enc = encodeURIComponent(msg);
+    var mob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    var url = mob ? 'https://wa.me/' + full + '?text=' + enc : 'https://web.whatsapp.com/send?phone=' + full + '&text=' + enc;
+
+    var cn = document.getElementById('clientName').value.trim();
+    var now = new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+
+    // Save sender name
+    try { localStorage.setItem(senderKey, document.getElementById('senderName').value.trim()); } catch(e) {}
+
+    // Save to tracker
+    if (selectedTemplate.startsWith('mto_')) {
+      var statusMap = {mto_confirm:'Confirmed', mto_delay:'Delayed', mto_ready:'Ready', mto_dispatch:'Dispatched'};
+      var existing = mtoData.find(function(e) { return e.client.toLowerCase() === cn.toLowerCase() && e.status !== 'Dispatched' && e.status !== 'Delivered'; });
+      if (existing) {
+        existing.status = statusMap[selectedTemplate];
+        existing.lastUpdate = now;
+        if (selectedTemplate === 'mto_delay') existing.dueDate = document.getElementById('mtoND').value;
+      } else {
+        var entry = {id: genId(), client: cn, status: statusMap[selectedTemplate], lastUpdate: now, dueDate:'', payment:'', balance:'', style:'', createdAt: now};
+        if (selectedTemplate === 'mto_confirm') {
+          entry.dueDate = document.getElementById('mtoDD').value;
+          entry.payment = document.getElementById('mtoPay').value;
+          if (entry.payment !== 'Paid in Full') entry.balance = document.getElementById('mtoBal').value.trim();
+          entry.style = document.getElementById('mtoStyle').value.trim();
+        }
+        mtoData.push(entry);
+      }
+      saveJSON(mtoKey, mtoData);
+    }
+    if (selectedTemplate.startsWith('alt_')) {
+      var altMap = {alt_received:'Received', alt_ready:'Ready', alt_dispatch:'Dispatched', alt_delivered:'Delivered'};
+      var aExist = altData.find(function(e) { return e.client.toLowerCase() === cn.toLowerCase() && e.status !== 'Delivered'; });
+      if (aExist) {
+        aExist.status = altMap[selectedTemplate];
+        aExist.lastUpdate = now;
+      } else {
+        var aEntry = {id: genId(), client: cn, status: altMap[selectedTemplate], lastUpdate: now, style:'', details:'', dueDate:'', createdAt: now};
+        if (selectedTemplate === 'alt_received') {
+          aEntry.style = document.getElementById('altSt').value.trim();
+          aEntry.details = document.getElementById('altDt').value.trim();
+          aEntry.dueDate = document.getElementById('altRD').value;
+        }
+        altData.push(aEntry);
+      }
+      saveJSON(altKey, altData);
+    }
+
+    // Log
+    var tplNames = {mto_confirm:'Order Confirmation', mto_delay:'Delay Intimation', mto_ready:'Ready for Collection', mto_dispatch:'Post-Dispatch', alt_received:'Alt. Received', alt_ready:'Alt. Ready', alt_dispatch:'Alt. Dispatched', alt_delivered:'Alt. Delivered', care_thankyou:'Thank You', care_followup:'Follow-up'};
+    messageLog.unshift({client: cn, template: tplNames[selectedTemplate], time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});
+    try { localStorage.setItem(todayKey, JSON.stringify(messageLog)); } catch(e) {}
+    renderLog();
+
+    window.open(url, 'ampm_whatsapp');
+  };
+
+  // ── Reset ──
+  window.resetForm = function() {
+    ['clientName','pn','mtoDD','mtoND','mtoC','mtoTr','mtoED','altSt','altDt','altRD','altC','altTr','altED','mtoBal','mtoStyle'].forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    document.getElementById('mtoPay').value = 'Paid in Full'; togBal();
+    document.getElementById('errMsg').classList.remove('show');
+    document.querySelectorAll('.template-card').forEach(function(c) { c.classList.remove('active'); });
+    document.querySelectorAll('.conditional').forEach(function(c) { c.classList.remove('visible'); });
+    selectedTemplate = null;
+    document.getElementById('prevSec').classList.add('hidden');
+    document.getElementById('clientName').focus();
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  // ── Log ──
+  function renderLog() {
+    var ct = document.getElementById('logContainer');
+    document.getElementById('logCount').textContent = messageLog.length;
+    if (!messageLog.length) { ct.innerHTML = '<div class="empty-log">No messages sent yet today</div>'; return; }
+    ct.innerHTML = messageLog.map(function(e) {
+      return '<div class="log-entry"><div class="log-left"><div class="log-name">' + esc(e.client) + '</div><div class="log-detail">' + esc(e.template) + '</div></div><div class="log-time">' + esc(e.time) + '</div></div>';
+    }).join('');
+  }
+
+  // ══════ TRACKER / DASHBOARD ══════
+  function daysUntil(ds) {
+    if (!ds) return null;
+    var d = new Date(ds), n = new Date(); n.setHours(0,0,0,0); d.setHours(0,0,0,0);
+    return Math.round((d - n) / 86400000);
+  }
+
+  window.dTab = function(t) {
+    currentDashTab = t; currentFilter = 'active';
+    document.querySelectorAll('.dash-tab').forEach(function(b,i) { b.classList.toggle('active', (i===0 && t==='mto') || (i===1 && t==='alt')); });
+    renderDashboard();
+  };
+
+  window.dFilt = function(f) { currentFilter = f; renderDashboard(); };
+
+  function renderDashboard() {
+    var isMto = currentDashTab === 'mto';
+    var data = isMto ? mtoData : altData;
+    var activeS = isMto ? ['Confirmed','Delayed','Ready'] : ['Received','Ready','Dispatched'];
+
+    // Stats
+    var counts = {};
+    data.forEach(function(e) { counts[e.status] = (counts[e.status]||0) + 1; });
+    var odC = 0;
+    data.forEach(function(e) { if (activeS.indexOf(e.status) > -1 && e.dueDate) { var dl = daysUntil(e.dueDate); if (dl !== null && dl < 0) odC++; } });
+
+    var sH = '';
+    if (isMto) {
+      sH += '<div class="stat-card"><div class="sn">' + (counts.Confirmed||0) + '</div><div class="sl">Production</div></div>';
+      sH += '<div class="stat-card"><div class="sn">' + (counts.Ready||0) + '</div><div class="sl">Ready</div></div>';
+      sH += '<div class="stat-card"><div class="sn">' + (counts.Dispatched||0) + '</div><div class="sl">Dispatched</div></div>';
+    } else {
+      sH += '<div class="stat-card"><div class="sn">' + (counts.Received||0) + '</div><div class="sl">In Alteration</div></div>';
+      sH += '<div class="stat-card"><div class="sn">' + (counts.Ready||0) + '</div><div class="sl">Ready</div></div>';
+      sH += '<div class="stat-card"><div class="sn">' + (counts.Dispatched||0) + '</div><div class="sl">Dispatched</div></div>';
+    }
+    sH += '<div class="stat-card overdue"><div class="sn">' + odC + '</div><div class="sl">Overdue</div></div>';
+    document.getElementById('statRow').innerHTML = sH;
+
+    // Filters
+    var actC = 0; data.forEach(function(e) { if (activeS.indexOf(e.status)>-1) actC++; });
+    var fH = '<div class="filter-chip' + (currentFilter==='active'?' active':'') + '" onclick="dFilt(\'active\')">Active <span class="fc">' + actC + '</span></div>';
+    fH += '<div class="filter-chip' + (currentFilter==='overdue'?' active':'') + '" onclick="dFilt(\'overdue\')">Overdue <span class="fc">' + odC + '</span></div>';
+    var allSt = isMto ? ['Confirmed','Delayed','Ready','Dispatched'] : ['Received','Ready','Dispatched','Delivered'];
+    allSt.forEach(function(s) { fH += '<div class="filter-chip' + (currentFilter===s?' active':'') + '" onclick="dFilt(\'' + s + '\')">' + s + ' <span class="fc">' + (counts[s]||0) + '</span></div>'; });
+    fH += '<div class="filter-chip' + (currentFilter==='all'?' active':'') + '" onclick="dFilt(\'all\')">All <span class="fc">' + data.length + '</span></div>';
+    if (isMto) {
+      var balC = data.filter(function(e) { return e.payment && e.payment !== 'Paid in Full' && activeS.indexOf(e.status)>-1; }).length;
+      fH += '<div class="filter-chip' + (currentFilter==='bal'?' active':'') + '" onclick="dFilt(\'bal\')">Balance Due <span class="fc">' + balC + '</span></div>';
+    }
+    document.getElementById('statusFilter').innerHTML = fH;
+
+    // Filter data
+    var filtered = [];
+    data.forEach(function(e) {
+      if (currentFilter === 'all') { filtered.push(e); return; }
+      if (currentFilter === 'active' && activeS.indexOf(e.status) > -1) { filtered.push(e); return; }
+      if (currentFilter === 'overdue' && activeS.indexOf(e.status) > -1 && e.dueDate && daysUntil(e.dueDate) < 0) { filtered.push(e); return; }
+      if (currentFilter === 'bal' && e.payment && e.payment !== 'Paid in Full' && activeS.indexOf(e.status) > -1) { filtered.push(e); return; }
+      if (currentFilter === e.status) filtered.push(e);
+    });
+    filtered.sort(function(a,b) { var da = a.dueDate ? daysUntil(a.dueDate) : 999; var db2 = b.dueDate ? daysUntil(b.dueDate) : 999; return da - db2; });
+
+    if (!filtered.length) {
+      document.getElementById('trackerContent').innerHTML = '<div class="empty-state"><div class="ei">' + (currentFilter==='overdue'?'✅':'💭') + '</div>' + (currentFilter==='overdue'?'All on track — no overdue items':'No ' + currentFilter + ' items') + '</div>';
+      return;
+    }
+
+    var cH = '';
+    filtered.forEach(function(en) {
+      var days = en.dueDate ? daysUntil(en.dueDate) : null;
+      var isOD = days !== null && days < 0 && activeS.indexOf(en.status) > -1;
+      cH += '<div class="tk-card' + (isOD?' overdue':'') + '">';
+      cH += '<div class="tk-top"><div><div class="tk-client">' + esc(en.client) + '</div></div>';
+      cH += '<span class="status-badge sb-' + en.status.toLowerCase() + '">' + esc(en.status) + '</span></div>';
+      cH += '<div class="tk-details">';
+      if (en.style) cH += '<div class="tk-row"><span class="tk-label">Style</span><span>' + esc(en.style) + '</span></div>';
+      if (en.details) cH += '<div class="tk-row"><span class="tk-label">Details</span><span>' + esc(en.details) + '</span></div>';
+      if (en.dueDate) cH += '<div class="tk-row"><span class="tk-label">' + (isMto?'Delivery':'Ready') + ' Date</span><span style="font-weight:600">' + fD(en.dueDate) + '</span></div>';
+      cH += '<div class="tk-row"><span class="tk-label">Updated</span><span>' + esc(en.lastUpdate) + '</span></div>';
+      if (isMto && en.payment) {
+        if (en.payment === 'Paid in Full') cH += '<div class="tk-pay pay-full">✓ Paid in Full</div>';
+        else cH += '<div class="tk-pay pay-partial">₹ ' + esc(en.payment) + (en.balance ? ' — Balance: ₹' + esc(en.balance) : '') + '</div>';
+      }
+      if (isOD) cH += '<div class="tk-overdue">⚠ Overdue by ' + Math.abs(days) + ' day' + (Math.abs(days)>1?'s':'') + '</div>';
+      else if (days !== null && days >= 0 && activeS.indexOf(en.status) > -1) {
+        if (days === 0) cH += '<div class="tk-warn">⏰ Due today</div>';
+        else if (days <= 3) cH += '<div class="tk-warn">⏳ ' + days + ' day' + (days>1?'s':'') + ' left</div>';
+        else cH += '<div class="tk-ok">✓ ' + days + ' days left</div>';
+      }
+      cH += '</div></div>';
+    });
+    document.getElementById('trackerContent').innerHTML = cH;
+  }
+
+  // ── Export CSV ──
+  window.exportCSV = function() {
+    var isMto = currentDashTab === 'mto';
+    var data = isMto ? mtoData : altData;
+    if (!data.length) { alert('No data to export'); return; }
+
+    var headers = isMto
+      ? ['Client','Status','Style','Delivery Date','Payment','Balance','Last Update','Created']
+      : ['Client','Status','Style','Details','Ready Date','Last Update','Created'];
+
+    var rows = data.map(function(e) {
+      if (isMto) return [e.client, e.status, e.style||'', fD(e.dueDate), e.payment||'', e.balance||'', e.lastUpdate, e.createdAt];
+      return [e.client, e.status, e.style||'', e.details||'', fD(e.dueDate), e.lastUpdate, e.createdAt];
+    });
+
+    var csv = [headers.join(',')].concat(rows.map(function(r) {
+      return r.map(function(v) { return '"' + String(v).replace(/"/g,'""') + '"'; }).join(',');
+    })).join('\n');
+
+    var blob = new Blob([csv], {type:'text/csv'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'AMPM_' + STORE.replace(/\s/g,'') + '_' + (isMto?'MTO':'Alteration') + '_Tracker.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+})();
+</script>
+</body>
+</html>
