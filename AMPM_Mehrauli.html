@@ -505,15 +505,15 @@
     var s = document.getElementById('senderName').value.trim() || '[Name]';
     var sign = s + ' | AMPM ' + STORE;
 
-    if (selectedTemplate === ‘mto_confirm’) {
-      var dd = fD(document.getElementById(‘mtoDD’).value) || ‘[Date]’;
-      var pay = document.getElementById(‘mtoPay’).value;
-      var payLine = ‘’;
-      if (pay !== ‘Paid in Full’) {
-        var bal = document.getElementById(‘mtoBal’).value.trim() || ‘[Amount]’;
-        payLine = ‘\n\nBalance Payment Pending: ₹’ + bal;
+    if (selectedTemplate === 'mto_confirm') {
+      var dd = fD(document.getElementById('mtoDD').value) || '[Date]';
+      var pay = document.getElementById('mtoPay').value;
+      var payLine = '';
+      if (pay !== 'Paid in Full') {
+        var bal = document.getElementById('mtoBal').value.trim() || '[Amount]';
+        payLine = '\n\nBalance Payment Pending: ₹' + bal;
       }
-      return ‘Dear ‘ + c + ‘,\n\nThank you for placing your order with AMPM. We’ve received your custom order details and have begun working on it.\n\nExpected Delivery Date: ‘ + dd + payLine + ‘\n\nWe will keep you updated on the progress. Please feel free to reach out anytime.\n\nWarm regards,\n’ + sign;
+      return 'Dear ' + c + ',\n\nThank you for placing your order with AMPM. We\'ve received your custom order details and have begun working on it.\n\nExpected Delivery Date: ' + dd + payLine + '\n\nWe will keep you updated on the progress. Please feel free to reach out anytime.\n\nWarm regards,\n' + sign;
     }
     if (selectedTemplate === 'mto_delay') {
       var r = document.getElementById('delayR').value;
@@ -615,6 +615,7 @@
         existing.status = statusMap[selectedTemplate];
         existing.lastUpdate = now;
         if (selectedTemplate === 'mto_delay') existing.dueDate = document.getElementById('mtoND').value;
+        sbUpsert('mto_orders', existing);
       } else {
         var entry = {id: genId(), client: cn, status: statusMap[selectedTemplate], lastUpdate: now, dueDate:'', payment:'', balance:'', style:'', createdAt: now};
         if (selectedTemplate === 'mto_confirm') {
@@ -625,8 +626,6 @@
         }
         mtoData.push(entry);
         sbUpsert('mto_orders', entry);
-      } else {
-        sbUpsert('mto_orders', existing);
       }
     }
     if (selectedTemplate.startsWith('alt_')) {
@@ -635,6 +634,7 @@
       if (aExist) {
         aExist.status = altMap[selectedTemplate];
         aExist.lastUpdate = now;
+        sbUpsert('alteration_orders', aExist);
       } else {
         var aEntry = {id: genId(), client: cn, status: altMap[selectedTemplate], lastUpdate: now, style:'', details:'', dueDate:'', createdAt: now};
         if (selectedTemplate === 'alt_received') {
@@ -644,8 +644,6 @@
         }
         altData.push(aEntry);
         sbUpsert('alteration_orders', aEntry);
-      } else {
-        sbUpsert('alteration_orders', aExist);
       }
     }
 
