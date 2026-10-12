@@ -505,9 +505,15 @@
     var s = document.getElementById('senderName').value.trim() || '[Name]';
     var sign = s + ' | AMPM ' + STORE;
 
-    if (selectedTemplate === 'mto_confirm') {
-      var dd = fD(document.getElementById('mtoDD').value) || '[Date]';
-      return 'Dear ' + c + ',\n\nThank you for placing your order with AMPM. We’ve received your custom order details and have begun working on it.\n\nExpected Delivery Date: ' + dd + '\n\nWe will keep you updated on the progress. Please feel free to reach out anytime.\n\nWarm regards,\n' + sign;
+    if (selectedTemplate === ‘mto_confirm’) {
+      var dd = fD(document.getElementById(‘mtoDD’).value) || ‘[Date]’;
+      var pay = document.getElementById(‘mtoPay’).value;
+      var payLine = ‘’;
+      if (pay !== ‘Paid in Full’) {
+        var bal = document.getElementById(‘mtoBal’).value.trim() || ‘[Amount]’;
+        payLine = ‘\n\nBalance Payment Pending: ₹’ + bal;
+      }
+      return ‘Dear ‘ + c + ‘,\n\nThank you for placing your order with AMPM. We’ve received your custom order details and have begun working on it.\n\nExpected Delivery Date: ‘ + dd + payLine + ‘\n\nWe will keep you updated on the progress. Please feel free to reach out anytime.\n\nWarm regards,\n’ + sign;
     }
     if (selectedTemplate === 'mto_delay') {
       var r = document.getElementById('delayR').value;
