@@ -42,7 +42,8 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  .container { max-width: 540px; margin: 0 auto; padding: 0 16px 40px; }
+  .container { max-width: 540px; margin: 0 auto; padding: 0 16px 40px; transition: max-width 0.2s ease; }
+  .container.wide { max-width: 1100px; }
 
   /* Header */
   .header {
@@ -306,7 +307,7 @@
   }
   .cd-meta { font-size: 12px; color: var(--text-light); margin-bottom: 14px; display: flex; gap: 12px; flex-wrap: wrap; }
   .cd-stats {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;
   }
   .cd-stat {
     background: var(--bg); border-radius: 8px; padding: 12px 10px; text-align: center;
@@ -624,6 +625,7 @@
     btns[0].classList.toggle('active', p === 'send');
     btns[1].classList.toggle('active', p === 'tracker');
     btns[2].classList.toggle('active', p === 'dashboard');
+    document.querySelector('.container').classList.toggle('wide', p === 'dashboard');
     if (p === 'tracker') renderDashboard();
   };
 
