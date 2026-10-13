@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AMPM - Client Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
 :root {
   --cream: #F4ECE3;
@@ -59,43 +58,8 @@ body {
   margin-top: 4px;
 }
 
-/* Tabs */
-.tabs {
-  display: flex;
-  background: var(--white);
-  border-bottom: 2px solid var(--border);
-  position: sticky;
-  top: 76px;
-  z-index: 99;
-}
-.tab {
-  flex: 1;
-  padding: 14px 16px;
-  text-align: center;
-  font-size: 0.85rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: all 0.2s;
-  color: var(--text-light);
-  background: none;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  font-family: 'Inter', sans-serif;
-}
-.tab:hover { color: var(--brown); background: rgba(134,70,36,0.04); }
-.tab.active {
-  color: var(--brown);
-  border-bottom-color: var(--brown);
-  font-weight: 600;
-}
-
 /* Content */
 .content { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
-.tab-content { display: none; }
-.tab-content.active { display: block; }
 
 /* Search */
 .search-box {
@@ -146,12 +110,6 @@ body {
 }
 .btn-primary:hover { background: var(--brown-dark); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-secondary {
-  background: var(--cream);
-  color: var(--brown);
-  border: 1.5px solid var(--brown);
-}
-.btn-secondary:hover { background: var(--brown); color: var(--cream); }
 .search-hint {
   font-size: 0.75rem;
   color: var(--text-light);
@@ -307,144 +265,6 @@ tbody tr:last-child td { border-bottom: none; }
   text-align: right;
 }
 
-/* Upload Section */
-.upload-box {
-  background: var(--white);
-  border-radius: 12px;
-  padding: 28px 24px;
-  box-shadow: var(--shadow);
-  margin-bottom: 20px;
-}
-.upload-box h3 {
-  font-family: 'EB Garamond', serif;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--brown);
-  margin-bottom: 6px;
-}
-.upload-box p {
-  font-size: 0.8rem;
-  color: var(--text-light);
-  margin-bottom: 16px;
-  line-height: 1.5;
-}
-.drop-zone {
-  border: 2px dashed var(--border);
-  border-radius: 10px;
-  padding: 40px 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-}
-.drop-zone:hover, .drop-zone.drag-over {
-  border-color: var(--brown);
-  background: rgba(134,70,36,0.03);
-}
-.drop-zone input[type="file"] {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-.drop-icon { font-size: 2.5rem; margin-bottom: 8px; }
-.drop-text { font-size: 0.9rem; color: var(--text-light); }
-.drop-text strong { color: var(--brown); }
-
-/* CSV Format Reference */
-.format-ref {
-  background: var(--cream);
-  border-radius: 8px;
-  padding: 16px;
-  margin-top: 16px;
-}
-.format-ref h4 {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--brown);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.format-ref code {
-  display: block;
-  font-size: 0.72rem;
-  color: var(--text);
-  line-height: 1.8;
-  word-break: break-all;
-  white-space: pre-wrap;
-}
-
-/* Preview */
-.preview-box {
-  background: var(--white);
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow);
-  margin-bottom: 20px;
-  display: none;
-}
-.preview-box h3 {
-  font-family: 'EB Garamond', serif;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--brown);
-  margin-bottom: 4px;
-}
-.preview-stats {
-  font-size: 0.8rem;
-  color: var(--text-light);
-  margin-bottom: 16px;
-}
-.preview-stats span {
-  display: inline-block;
-  margin-right: 16px;
-}
-.preview-stats .good { color: var(--green); font-weight: 600; }
-.preview-stats .bad { color: var(--red); font-weight: 600; }
-.upload-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 16px;
-  flex-wrap: wrap;
-}
-
-/* Progress */
-.progress-box {
-  background: var(--white);
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow);
-  margin-bottom: 20px;
-  display: none;
-}
-.progress-box h3 {
-  font-family: 'EB Garamond', serif;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--brown);
-  margin-bottom: 16px;
-}
-.progress-bar-wrap {
-  background: var(--cream);
-  border-radius: 20px;
-  height: 12px;
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--brown), var(--brown-light));
-  border-radius: 20px;
-  width: 0%;
-  transition: width 0.3s;
-}
-.progress-text {
-  font-size: 0.8rem;
-  color: var(--text-light);
-  text-align: center;
-}
-
 /* Status Messages */
 .status-msg {
   padding: 12px 16px;
@@ -481,7 +301,6 @@ tbody tr:last-child td { border-bottom: none; }
   .btn { width: 100%; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .filter-row { flex-direction: column; }
-  .upload-actions { flex-direction: column; }
   .view-toggle { flex-wrap: wrap; }
 }
 </style>
@@ -493,164 +312,97 @@ tbody tr:last-child td { border-bottom: none; }
   <p>Client Dashboard</p>
 </div>
 
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('lookup')">Client Lookup</button>
-  <button class="tab" onclick="switchTab('upload')">Upload Data</button>
-</div>
-
 <div class="content">
-  <!-- TAB 1: Client Lookup -->
-  <div id="tab-lookup" class="tab-content active">
-    <div class="search-box">
-      <label>Search Client Purchase History</label>
-      <div class="search-row">
-        <input type="tel" id="phoneInput" placeholder="Enter mobile number (e.g. 9876543210)" maxlength="10" onkeydown="if(event.key==='Enter')searchClient()">
-        <button class="btn btn-primary" id="searchBtn" onclick="searchClient()">Search</button>
-      </div>
-      <div class="search-hint">Enter 10-digit mobile number without country code</div>
+  <div class="search-box">
+    <label>Search Client Purchase History</label>
+    <div class="search-row">
+      <input type="tel" id="phoneInput" placeholder="Enter mobile number (e.g. 9876543210)" maxlength="10" onkeydown="if(event.key==='Enter')searchClient()">
+      <button class="btn btn-primary" id="searchBtn" onclick="searchClient()">Search</button>
     </div>
+    <div class="search-hint">Enter 10-digit mobile number without country code</div>
+  </div>
 
-    <div id="searchLoading" class="loading">
-      <div class="spinner"></div>
-      <div style="color:var(--text-light);font-size:0.85rem;">Searching records...</div>
+  <div id="searchLoading" class="loading">
+    <div class="spinner"></div>
+    <div style="color:var(--text-light);font-size:0.85rem;">Searching records...</div>
+  </div>
+
+  <div id="searchStatus" class="status-msg"></div>
+
+  <div id="clientProfile" class="client-profile">
+    <div class="client-name" id="cpName">-</div>
+    <div class="client-meta">
+      <span id="cpPhone">-</span>
+      <span id="cpCode">-</span>
+      <span id="cpType">-</span>
+      <span id="cpCity">-</span>
     </div>
-
-    <div id="searchStatus" class="status-msg"></div>
-
-    <div id="clientProfile" class="client-profile">
-      <div class="client-name" id="cpName">-</div>
-      <div class="client-meta">
-        <span id="cpPhone">-</span>
-        <span id="cpCode">-</span>
-        <span id="cpType">-</span>
-        <span id="cpCity">-</span>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="cpTotal">-</div>
+        <div class="stat-label">Total Spend</div>
       </div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value" id="cpTotal">-</div>
-          <div class="stat-label">Total Spend</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="cpItems">-</div>
-          <div class="stat-label">Total Items</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="cpVisits">-</div>
-          <div class="stat-label">Unique Bills</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="cpLast">-</div>
-          <div class="stat-label">Last Purchase</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="cpStore">-</div>
-          <div class="stat-label">Top Store</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="cpDept">-</div>
-          <div class="stat-label">Top Department</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="cpAvg">-</div>
-          <div class="stat-label">Avg. Bill Value</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="cpDisc">-</div>
-          <div class="stat-label">Avg. Discount</div>
-        </div>
+      <div class="stat-card">
+        <div class="stat-value" id="cpItems">-</div>
+        <div class="stat-label">Total Items</div>
       </div>
-    </div>
-
-    <div id="historySection" class="history-section">
-      <h3>Purchase History</h3>
-      <div class="filter-row">
-        <select id="filterStore" onchange="applyFilters()">
-          <option value="">All Stores</option>
-        </select>
-        <select id="filterDept" onchange="applyFilters()">
-          <option value="">All Departments</option>
-        </select>
-        <select id="filterSubCat" onchange="applyFilters()">
-          <option value="">All Sub-Categories</option>
-        </select>
-        <select id="filterSeason" onchange="applyFilters()">
-          <option value="">All Seasons</option>
-        </select>
-        <select id="filterYear" onchange="applyFilters()">
-          <option value="">All Years</option>
-        </select>
+      <div class="stat-card">
+        <div class="stat-value" id="cpVisits">-</div>
+        <div class="stat-label">Unique Bills</div>
       </div>
-      <div class="view-toggle">
-        <button class="view-btn active" onclick="setView('summary')">Summary View</button>
-        <button class="view-btn" onclick="setView('detail')">Detail View</button>
+      <div class="stat-card">
+        <div class="stat-value" id="cpLast">-</div>
+        <div class="stat-label">Last Purchase</div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead id="historyHead"></thead>
-          <tbody id="historyBody"></tbody>
-        </table>
+      <div class="stat-card">
+        <div class="stat-value" id="cpStore">-</div>
+        <div class="stat-label">Top Store</div>
       </div>
-      <div class="record-count" id="recordCount"></div>
+      <div class="stat-card">
+        <div class="stat-value" id="cpDept">-</div>
+        <div class="stat-label">Top Department</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="cpAvg">-</div>
+        <div class="stat-label">Avg. Bill Value</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="cpDisc">-</div>
+        <div class="stat-label">Avg. Discount</div>
+      </div>
     </div>
   </div>
 
-  <!-- TAB 2: Upload Data -->
-  <div id="tab-upload" class="tab-content">
-    <div class="upload-box">
-      <h3>Upload Client Purchase Data</h3>
-      <p>Upload a CSV file with client purchase records. The data will be added to the master database. Supports all fields including department, sub-category, color, size, article number, and more.</p>
-
-      <div class="drop-zone" id="dropZone">
-        <input type="file" accept=".csv" id="csvFile" onchange="handleFile(this.files[0])">
-        <div class="drop-icon">&#128196;</div>
-        <div class="drop-text"><strong>Click to select</strong> or drag & drop a CSV file</div>
-      </div>
-
-      <div class="format-ref">
-        <h4>CSV Column Headers (flexible matching)</h4>
-        <code>Store Name, Customer Name, Customer Mobile, Bill Date, Bill Number, Amount, Department, Sub Category, Product Category Name, MRP, Quantity, Color, Size, Article Number, Quarter Season Name, Customer Code, Bill Time, Product Level Disc%, New Customer Type, CA City Name, CA State Name, Country</code>
-        <br>
-        <span style="font-size:0.72rem;color:var(--text-light);margin-top:6px;display:block;">Date format: DD/MM/YYYY &mdash; Mobile: 10 digits without country code &mdash; Missing phone numbers will be skipped</span>
-      </div>
+  <div id="historySection" class="history-section">
+    <h3>Purchase History</h3>
+    <div class="filter-row">
+      <select id="filterStore" onchange="applyFilters()">
+        <option value="">All Stores</option>
+      </select>
+      <select id="filterDept" onchange="applyFilters()">
+        <option value="">All Departments</option>
+      </select>
+      <select id="filterSubCat" onchange="applyFilters()">
+        <option value="">All Sub-Categories</option>
+      </select>
+      <select id="filterSeason" onchange="applyFilters()">
+        <option value="">All Seasons</option>
+      </select>
+      <select id="filterYear" onchange="applyFilters()">
+        <option value="">All Years</option>
+      </select>
     </div>
-
-    <div id="uploadStatus" class="status-msg"></div>
-
-    <div id="previewBox" class="preview-box">
-      <h3>Data Preview</h3>
-      <div class="preview-stats" id="previewStats"></div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Client Name</th>
-              <th>Mobile</th>
-              <th>Date</th>
-              <th>Invoice</th>
-              <th>Store</th>
-              <th>Department</th>
-              <th>Sub Category</th>
-              <th>Qty</th>
-              <th>MRP</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody id="previewBody"></tbody>
-        </table>
-      </div>
-      <div class="upload-actions">
-        <button class="btn btn-primary" id="uploadBtn" onclick="uploadData()">Upload to Database</button>
-        <button class="btn btn-secondary" onclick="clearUpload()">Cancel</button>
-      </div>
+    <div class="view-toggle">
+      <button class="view-btn active" onclick="setView('summary')">Summary View</button>
+      <button class="view-btn" onclick="setView('detail')">Detail View</button>
     </div>
-
-    <div id="progressBox" class="progress-box">
-      <h3>Uploading Records</h3>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
-      <div class="progress-text" id="progressText">0 / 0 records</div>
+    <div class="table-wrap">
+      <table>
+        <thead id="historyHead"></thead>
+        <tbody id="historyBody"></tbody>
+      </table>
     </div>
+    <div class="record-count" id="recordCount"></div>
   </div>
 </div>
 
@@ -666,15 +418,6 @@ function sbHeaders(prefer) {
     'Content-Type': 'application/json',
     'Prefer': prefer || 'return=minimal'
   };
-}
-
-// ===== Tab Switching =====
-function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach(function(t, i) {
-    t.classList.toggle('active', (tab === 'lookup' && i === 0) || (tab === 'upload' && i === 1));
-  });
-  document.getElementById('tab-lookup').classList.toggle('active', tab === 'lookup');
-  document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
 }
 
 // ===== View Toggle =====
@@ -733,12 +476,12 @@ function searchClient() {
 
 function renderProfile(data) {
   document.getElementById('cpName').textContent = data[0].client_name || 'Unknown';
-  document.getElementById('cpPhone').textContent = '📱 ' + formatPhone(data[0].client_phone);
-  document.getElementById('cpCode').textContent = data[0].customer_code ? '🏷 Code: ' + data[0].customer_code : '';
-  document.getElementById('cpType').textContent = data[0].customer_type ? '👤 ' + data[0].customer_type : '';
+  document.getElementById('cpPhone').textContent = '\u{1F4F1} ' + formatPhone(data[0].client_phone);
+  document.getElementById('cpCode').textContent = data[0].customer_code ? '\u{1F3F7} Code: ' + data[0].customer_code : '';
+  document.getElementById('cpType').textContent = data[0].customer_type ? '\u{1F464} ' + data[0].customer_type : '';
   var city = data[0].city || '';
   var state = data[0].state || '';
-  document.getElementById('cpCity').textContent = city ? '📍 ' + city + (state ? ', ' + state : '') : '';
+  document.getElementById('cpCity').textContent = city ? '\u{1F4CD} ' + city + (state ? ', ' + state : '') : '';
 
   // Total Spend
   var total = data.reduce(function(s, r) { return s + (parseFloat(r.amount) || 0); }, 0);
@@ -906,248 +649,6 @@ function renderHistory(data) {
   tbody.innerHTML = html;
   document.getElementById('recordCount').textContent = data.length + ' records | ' + totalQty + ' items | Total: ' + formatCurrency(totalFiltered);
 }
-
-// ===== Upload / CSV =====
-var parsedData = [];
-
-function handleFile(file) {
-  if (!file) return;
-  if (!file.name.toLowerCase().endsWith('.csv')) {
-    showStatus('uploadStatus', 'Please select a CSV file', 'error');
-    return;
-  }
-
-  hideEl('uploadStatus');
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete: function(result) {
-      if (!result.data || !result.data.length) {
-        showStatus('uploadStatus', 'CSV file is empty or could not be parsed', 'error');
-        return;
-      }
-      processCSV(result.data);
-    },
-    error: function() {
-      showStatus('uploadStatus', 'Error reading CSV file', 'error');
-    }
-  });
-}
-
-// Store name cleaning map
-var storeMap = {
-  'ampm fashions pvt ltd emporio': 'Emporio',
-  'emporio': 'Emporio',
-  'ampm fashions pvt ltd khan apparel': 'Khan Market',
-  'khan market': 'Khan Market',
-  'khan apparel': 'Khan Market',
-  'ampm fashions pvt ltd kila': 'Mehrauli',
-  'mehrauli': 'Mehrauli',
-  'kila': 'Mehrauli'
-};
-
-function cleanStore(s) {
-  if (!s) return '';
-  var key = s.toString().trim().toLowerCase();
-  return storeMap[key] || s.toString().trim();
-}
-
-function processCSV(data) {
-  var mapped = [];
-  var errors = 0;
-
-  data.forEach(function(row) {
-    var name = findVal(row, ['customer name', 'client name', 'name', 'client_name']);
-    var phone = findVal(row, ['customer mobile', 'mobile number', 'mobile', 'phone', 'client_phone', 'phone number']);
-    var date = findVal(row, ['bill date', 'purchase date', 'date', 'purchase_date', 'transaction date']);
-    var invoice = findVal(row, ['bill number', 'invoice no', 'invoice', 'invoice_no', 'bill no']);
-    var amount = findVal(row, ['amount', 'total', 'bill amount', 'net amount', 'value']);
-    var store = findVal(row, ['store name', 'store', 'outlet', 'location']);
-    var dept = findVal(row, ['department', 'dept']);
-    var subcat = findVal(row, ['sub category', 'sub_category', 'subcategory']);
-    var prodcat = findVal(row, ['product category name', 'product category', 'product_category', 'category']);
-    var mrp = findVal(row, ['mrp', 'price', 'unit price']);
-    var qty = findVal(row, ['quantity', 'qty']);
-    var color = findVal(row, ['color', 'colour']);
-    var size = findVal(row, ['size']);
-    var article = findVal(row, ['article number', 'article_number', 'article no', 'articleno', 'sku']);
-    var season = findVal(row, ['quarter season name', 'quarter_season', 'season', 'quarter season']);
-    var custCode = findVal(row, ['customer code', 'customer_code', 'cust code']);
-    var billTime = findVal(row, ['bill time', 'bill_time', 'time']);
-    var disc = findVal(row, ['product level disc%', 'discount_pct', 'discount%', 'discount', 'disc%', 'disc']);
-    var custType = findVal(row, ['new customer type', 'customer_type', 'customer type', 'cust type']);
-    var city = findVal(row, ['ca city name', 'city', 'city name']);
-    var state = findVal(row, ['ca state name', 'state', 'state name']);
-    var country = findVal(row, ['country']);
-
-    // Clean phone
-    if (phone) phone = phone.toString().replace(/\.0$/, '').replace(/[^0-9]/g, '').slice(-10);
-
-    if (!name || !phone || phone.length < 10) {
-      errors++;
-      return;
-    }
-
-    var isoDate = parseDate(date);
-    var numAmt = parseFloat((amount || '0').toString().replace(/[^0-9.-]/g, '')) || 0;
-
-    mapped.push({
-      client_name: name.toString().trim(),
-      client_phone: phone,
-      purchase_date: isoDate,
-      invoice_no: (invoice || '').toString().trim(),
-      amount: numAmt,
-      store: cleanStore(store),
-      department: (dept || '').toString().trim() || null,
-      sub_category: (subcat || '').toString().trim() || null,
-      product_category: (prodcat || '').toString().trim() || null,
-      mrp: parseFloat(mrp) || null,
-      quantity: parseInt(qty) || null,
-      color: (color || '').toString().trim() || null,
-      size: (size || '').toString().trim() || null,
-      article_number: (article || '').toString().trim() || null,
-      quarter_season: (season || '').toString().trim() || null,
-      customer_code: (custCode || '').toString().trim() || null,
-      bill_time: (billTime || '').toString().trim() || null,
-      discount_pct: parseFloat(disc) || null,
-      customer_type: (custType || '').toString().trim() || null,
-      city: (city || '').toString().trim() || null,
-      state: (state || '').toString().trim() || null,
-      country: (country || '').toString().trim() || null
-    });
-  });
-
-  if (!mapped.length) {
-    showStatus('uploadStatus', 'No valid records found. Check that CSV has Customer Name and Customer Mobile columns.', 'error');
-    return;
-  }
-
-  parsedData = mapped;
-  renderPreview(mapped, errors);
-}
-
-function findVal(row, keys) {
-  for (var i = 0; i < keys.length; i++) {
-    for (var k in row) {
-      if (k.toLowerCase().trim() === keys[i]) return row[k];
-    }
-  }
-  return '';
-}
-
-function parseDate(str) {
-  if (!str) return null;
-  str = str.toString().trim();
-  var m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-  if (m) return m[3] + '-' + pad(m[2]) + '-' + pad(m[1]);
-  var m2 = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (m2) return str;
-  return null;
-}
-
-function pad(n) { return n.toString().length === 1 ? '0' + n : n.toString(); }
-
-function renderPreview(data, errors) {
-  showEl('previewBox');
-  var stats = '<span class="good">Valid: ' + data.length + '</span>';
-  if (errors > 0) stats += '<span class="bad">Skipped: ' + errors + ' (missing name/phone)</span>';
-  document.getElementById('previewStats').innerHTML = stats;
-
-  var html = '';
-  var preview = data.slice(0, 20);
-  preview.forEach(function(r) {
-    html += '<tr>' +
-      '<td>' + esc(r.client_name) + '</td>' +
-      '<td>' + esc(r.client_phone) + '</td>' +
-      '<td>' + (r.purchase_date ? formatDate(r.purchase_date) : '-') + '</td>' +
-      '<td>' + esc(r.invoice_no || '-') + '</td>' +
-      '<td>' + esc(r.store || '-') + '</td>' +
-      '<td>' + esc(r.department || '-') + '</td>' +
-      '<td>' + esc(r.sub_category || '-') + '</td>' +
-      '<td style="text-align:center;">' + (r.quantity || '-') + '</td>' +
-      '<td style="text-align:right;">' + (r.mrp ? formatCurrency(r.mrp) : '-') + '</td>' +
-      '<td style="text-align:right;">' + formatCurrency(r.amount) + '</td>' +
-      '</tr>';
-  });
-  if (data.length > 20) {
-    html += '<tr><td colspan="10" class="no-data">...and ' + (data.length - 20) + ' more records</td></tr>';
-  }
-  document.getElementById('previewBody').innerHTML = html;
-}
-
-function clearUpload() {
-  parsedData = [];
-  hideEl('previewBox');
-  hideEl('progressBox');
-  hideEl('uploadStatus');
-  document.getElementById('csvFile').value = '';
-}
-
-function uploadData() {
-  if (!parsedData.length) return;
-
-  document.getElementById('uploadBtn').disabled = true;
-  hideEl('previewBox');
-  showEl('progressBox');
-  hideEl('uploadStatus');
-
-  var BATCH = 100;
-  var total = parsedData.length;
-  var done = 0;
-  var failed = 0;
-
-  function uploadBatch(start) {
-    var chunk = parsedData.slice(start, start + BATCH);
-    if (!chunk.length) {
-      hideEl('progressBox');
-      document.getElementById('uploadBtn').disabled = false;
-      var msg = 'Upload complete! ' + done + ' records added.';
-      if (failed > 0) msg += ' ' + failed + ' failed.';
-      showStatus('uploadStatus', msg, failed > 0 ? 'error' : 'success');
-      parsedData = [];
-      document.getElementById('csvFile').value = '';
-      return;
-    }
-
-    fetch(SB_URL + '/client_purchases', {
-      method: 'POST',
-      headers: sbHeaders('return=minimal'),
-      body: JSON.stringify(chunk)
-    })
-    .then(function(r) {
-      if (r.ok) {
-        done += chunk.length;
-      } else {
-        failed += chunk.length;
-      }
-      updateProgress(done + failed, total);
-      uploadBatch(start + BATCH);
-    })
-    .catch(function() {
-      failed += chunk.length;
-      updateProgress(done + failed, total);
-      uploadBatch(start + BATCH);
-    });
-  }
-
-  uploadBatch(0);
-}
-
-function updateProgress(current, total) {
-  var pct = Math.round((current / total) * 100);
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressText').textContent = current + ' / ' + total + ' records (' + pct + '%)';
-}
-
-// ===== Drag & Drop =====
-var dz = document.getElementById('dropZone');
-dz.addEventListener('dragover', function(e) { e.preventDefault(); dz.classList.add('drag-over'); });
-dz.addEventListener('dragleave', function() { dz.classList.remove('drag-over'); });
-dz.addEventListener('drop', function(e) {
-  e.preventDefault();
-  dz.classList.remove('drag-over');
-  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-});
 
 // ===== Helpers =====
 function formatCurrency(n) {
