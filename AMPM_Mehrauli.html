@@ -71,9 +71,9 @@
   /* Nav */
   .nav { display: flex; background: var(--white); border-radius: 10px; margin-top: 16px; border: 1px solid #e8ddd2; overflow: hidden; }
   .nav-btn {
-    flex: 1; padding: 14px; text-align: center; font-size: 12px; font-weight: 600;
+    flex: 1; padding: 14px 6px; text-align: center; font-size: 11px; font-weight: 600;
     color: var(--text-light); cursor: pointer; background: var(--white); transition: 0.2s;
-    text-transform: uppercase; letter-spacing: 0.5px; border: none; font-family: 'Inter', sans-serif;
+    text-transform: uppercase; letter-spacing: 0.3px; border: none; font-family: 'Inter', sans-serif;
   }
   .nav-btn.active { color: var(--white); background: var(--brown); }
 
@@ -195,7 +195,7 @@
     margin-left: 8px; vertical-align: middle;
   }
 
-  /* ---- Dashboard / Tracker ---- */
+  /* ---- Tracker ---- */
   .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
   .stat-card {
     background: var(--white); border: 1px solid #e8ddd2; border-radius: 8px;
@@ -265,11 +265,115 @@
 
   .hidden { display: none !important; }
 
+  /* ---- Client Dashboard ---- */
+  .cd-search {
+    background: var(--white); border-radius: 10px; padding: 20px 18px;
+    margin-top: 14px; border: 1px solid #e8ddd2;
+  }
+  .cd-search-row { display: flex; gap: 8px; }
+  .cd-search-row input { flex: 1; }
+  .cd-search-btn {
+    padding: 12px 20px; border: none; border-radius: 8px; background: var(--brown);
+    color: var(--cream); font-family: 'Inter', sans-serif; font-size: 13px;
+    font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .cd-search-btn:hover { background: var(--brown-dark); }
+  .cd-search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .cd-hint { font-size: 11px; color: var(--text-light); margin-top: 8px; }
+
+  .cd-loading { display: none; text-align: center; padding: 24px; }
+  .cd-spinner {
+    width: 28px; height: 28px; border: 3px solid var(--border);
+    border-top-color: var(--brown); border-radius: 50%;
+    animation: cdspin 0.8s linear infinite; margin: 0 auto 8px;
+  }
+  @keyframes cdspin { to { transform: rotate(360deg); } }
+
+  .cd-status {
+    padding: 12px 14px; border-radius: 8px; font-size: 13px;
+    margin-top: 14px; display: none;
+  }
+  .cd-status.info { display: block; background: var(--blue-bg); color: var(--blue); }
+  .cd-status.error { display: block; background: var(--red-bg); color: var(--red-soft); }
+
+  .cd-profile {
+    background: var(--white); border-radius: 10px; padding: 20px 18px;
+    margin-top: 14px; border: 1px solid #e8ddd2; display: none;
+  }
+  .cd-name {
+    font-family: 'EB Garamond', Georgia, serif; font-size: 20px;
+    font-weight: 600; color: var(--brown); margin-bottom: 4px;
+  }
+  .cd-meta { font-size: 12px; color: var(--text-light); margin-bottom: 14px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .cd-stats {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+  }
+  .cd-stat {
+    background: var(--bg); border-radius: 8px; padding: 12px 10px; text-align: center;
+  }
+  .cd-stat-val {
+    font-family: 'EB Garamond', Georgia, serif; font-size: 18px;
+    font-weight: 700; color: var(--brown); font-variant-numeric: tabular-nums;
+  }
+  .cd-stat-lbl {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-light); margin-top: 3px;
+  }
+
+  .cd-history {
+    background: var(--white); border-radius: 10px; padding: 20px 18px;
+    margin-top: 14px; border: 1px solid #e8ddd2; display: none;
+  }
+  .cd-history h3 {
+    font-family: 'EB Garamond', Georgia, serif; font-size: 16px;
+    font-weight: 600; color: var(--brown); margin-bottom: 14px;
+  }
+  .cd-filter-row {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px;
+  }
+  .cd-filter-row select {
+    padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 6px;
+    font-size: 11px; font-family: 'Inter', sans-serif; background: var(--white);
+    min-width: 100px;
+  }
+  .cd-view-toggle { display: flex; gap: 6px; margin-bottom: 12px; }
+  .cd-view-btn {
+    padding: 6px 12px; border: 1.5px solid var(--border); border-radius: 6px;
+    font-size: 11px; font-family: 'Inter', sans-serif; cursor: pointer;
+    background: var(--white); color: var(--text-light); font-weight: 500;
+  }
+  .cd-view-btn.active { background: var(--brown); color: var(--cream); border-color: var(--brown); }
+  .cd-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .cd-table {
+    width: 100%; border-collapse: collapse; font-size: 11px;
+  }
+  .cd-table thead th {
+    background: var(--brown); color: var(--cream); padding: 8px 8px;
+    text-align: left; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap;
+    font-size: 10px;
+  }
+  .cd-table thead th:first-child { border-radius: 6px 0 0 0; }
+  .cd-table thead th:last-child { border-radius: 0 6px 0 0; }
+  .cd-table tbody td {
+    padding: 7px 8px; border-bottom: 1px solid #ede5dc; white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .cd-table tbody tr:hover { background: rgba(134,70,36,0.03); }
+  .cd-table tbody tr:last-child td { border-bottom: none; }
+  .cd-amt-pos { color: var(--text-dark); font-weight: 500; }
+  .cd-amt-neg { color: var(--red-soft); font-weight: 500; }
+  .cd-rec-count { font-size: 11px; color: var(--text-light); margin-top: 10px; text-align: right; }
+  .cd-no-data { text-align: center; padding: 30px 16px; color: var(--text-light); font-size: 12px; }
+
   @media (max-width: 400px) {
     .mode-grid { gap: 6px; } .mode-card { padding: 10px 5px; }
     .template-grid { gap: 6px; } .template-card { padding: 11px 8px; }
     .section { padding: 16px 14px; }
     .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .cd-search-row { flex-direction: column; }
+    .cd-search-btn { width: 100%; }
+    .cd-filter-row { flex-direction: column; }
+    .cd-filter-row select { width: 100%; }
   }
 </style>
 </head>
@@ -284,6 +388,7 @@
   <div class="nav">
     <div class="nav-btn active" onclick="navTo('send')">Send Message</div>
     <div class="nav-btn" onclick="navTo('tracker')">Tracker</div>
+    <div class="nav-btn" onclick="navTo('dashboard')">Client Lookup</div>
   </div>
 
   <!-- ===== SEND MESSAGE PANEL ===== -->
@@ -407,6 +512,71 @@
     <button class="btn-export" onclick="exportCSV()">&#128196; Export to CSV</button>
     <div class="note">Data syncs to cloud — accessible from any device.</div>
   </div>
+
+  <!-- ===== CLIENT DASHBOARD PANEL ===== -->
+  <div id="panelDashboard" class="hidden">
+
+    <div class="cd-search">
+      <div class="section-label">Search Client Purchase History</div>
+      <div class="cd-search-row">
+        <input type="tel" id="cdPhone" placeholder="Enter 10-digit mobile number" maxlength="10" onkeydown="if(event.key==='Enter')cdSearch()">
+        <button class="cd-search-btn" id="cdSearchBtn" onclick="cdSearch()">Search</button>
+      </div>
+      <div class="cd-hint">Enter number without country code. Searches across all stores.</div>
+    </div>
+
+    <div id="cdLoading" class="cd-loading">
+      <div class="cd-spinner"></div>
+      <div style="color:var(--text-light);font-size:12px;">Searching records...</div>
+    </div>
+
+    <div id="cdStatus" class="cd-status"></div>
+
+    <div id="cdProfile" class="cd-profile">
+      <div class="cd-name" id="cdName">-</div>
+      <div class="cd-meta">
+        <span id="cdMetaPhone">-</span>
+        <span id="cdMetaCode">-</span>
+        <span id="cdMetaType">-</span>
+        <span id="cdMetaCity">-</span>
+      </div>
+      <div class="cd-stats">
+        <div class="cd-stat"><div class="cd-stat-val" id="cdTotal">-</div><div class="cd-stat-lbl">Total Spend</div></div>
+        <div class="cd-stat"><div class="cd-stat-val" id="cdItems">-</div><div class="cd-stat-lbl">Total Items</div></div>
+        <div class="cd-stat"><div class="cd-stat-val" id="cdVisits">-</div><div class="cd-stat-lbl">Unique Bills</div></div>
+        <div class="cd-stat"><div class="cd-stat-val" id="cdLast">-</div><div class="cd-stat-lbl">Last Purchase</div></div>
+        <div class="cd-stat"><div class="cd-stat-val" id="cdStore">-</div><div class="cd-stat-lbl">Top Store</div></div>
+        <div class="cd-stat"><div class="cd-stat-val" id="cdDept">-</div><div class="cd-stat-lbl">Top Department</div></div>
+        <div class="cd-stat"><div class="cd-stat-val" id="cdAvg">-</div><div class="cd-stat-lbl">Avg. Bill Value</div></div>
+        <div class="cd-stat"><div class="cd-stat-val" id="cdDisc">-</div><div class="cd-stat-lbl">Avg. Discount</div></div>
+      </div>
+    </div>
+
+    <div id="cdHistory" class="cd-history">
+      <h3>Purchase History</h3>
+      <div class="cd-filter-row">
+        <select id="cdFilterStore" onchange="cdApplyFilters()"><option value="">All Stores</option></select>
+        <select id="cdFilterDept" onchange="cdApplyFilters()"><option value="">All Departments</option></select>
+        <select id="cdFilterSubCat" onchange="cdApplyFilters()"><option value="">All Sub-Categories</option></select>
+        <select id="cdFilterSeason" onchange="cdApplyFilters()"><option value="">All Seasons</option></select>
+        <select id="cdFilterYear" onchange="cdApplyFilters()"><option value="">All Years</option></select>
+      </div>
+      <div class="cd-view-toggle">
+        <button class="cd-view-btn active" onclick="cdSetView('summary')">Summary</button>
+        <button class="cd-view-btn" onclick="cdSetView('detail')">Detail</button>
+      </div>
+      <div class="cd-table-wrap">
+        <table class="cd-table">
+          <thead id="cdTHead"></thead>
+          <tbody id="cdTBody"></tbody>
+        </table>
+      </div>
+      <div class="cd-rec-count" id="cdRecCount"></div>
+    </div>
+
+    <div class="note" style="margin-top:14px;">Client purchase data from Supabase — searches across all AMPM stores.</div>
+  </div>
+
 </div>
 
 <script>
@@ -449,9 +619,11 @@
   window.navTo = function(p) {
     document.getElementById('panelSend').classList.toggle('hidden', p !== 'send');
     document.getElementById('panelTracker').classList.toggle('hidden', p !== 'tracker');
+    document.getElementById('panelDashboard').classList.toggle('hidden', p !== 'dashboard');
     var btns = document.querySelectorAll('.nav-btn');
     btns[0].classList.toggle('active', p === 'send');
     btns[1].classList.toggle('active', p === 'tracker');
+    btns[2].classList.toggle('active', p === 'dashboard');
     if (p === 'tracker') renderDashboard();
   };
 
@@ -486,7 +658,7 @@
   };
 
   // Live preview
-  document.querySelectorAll('input,select,textarea').forEach(function(el) {
+  document.querySelectorAll('#panelSend input, #panelSend select, #panelSend textarea').forEach(function(el) {
     el.addEventListener('input', updPrev);
     el.addEventListener('change', updPrev);
   });
@@ -545,13 +717,13 @@
       return 'Dear ' + c + ',\n\nYour altered outfit has been dispatched.\n\nDispatch Details:\n• Courier/Porter: ' + ac + '\n• Tracking: ' + at2 + '\n• Expected Delivery: ' + ae + '\n\nPlease reach out if you need assistance.\n\nWarm regards,\n' + sign;
     }
     if (selectedTemplate === 'alt_delivered') {
-      return 'Dear ' + c + ',\n\nWe hope your altered AMPM outfit is exactly as you envisioned.\n\nKindly reply ‘Received’ to confirm. Your confirmation helps us ensure every order is accounted for.\n\nThank you for choosing AMPM.\n\nWarm regards,\n' + sign;
+      return 'Dear ' + c + ',\n\nWe hope your altered AMPM outfit is exactly as you envisioned.\n\nKindly reply \'Received\' to confirm. Your confirmation helps us ensure every order is accounted for.\n\nThank you for choosing AMPM.\n\nWarm regards,\n' + sign;
     }
     if (selectedTemplate === 'care_thankyou') {
-      return 'Dear ' + c + ',\n\nThank you for your recent purchase at AMPM ' + STORE + '. It was a pleasure assisting you.\n\nWe hope you love your new piece. Should you need styling, care, or alterations assistance, please don’t hesitate to reach out.\n\nWe look forward to welcoming you again.\n\nWarm regards,\n' + sign;
+      return 'Dear ' + c + ',\n\nThank you for your recent purchase at AMPM ' + STORE + '. It was a pleasure assisting you.\n\nWe hope you love your new piece. Should you need styling, care, or alterations assistance, please don\'t hesitate to reach out.\n\nWe look forward to welcoming you again.\n\nWarm regards,\n' + sign;
     }
     if (selectedTemplate === 'care_followup') {
-      return 'Dear ' + c + ',\n\nWe hope you’re enjoying your AMPM piece.\n\nWe’d love to know how it fits into your wardrobe. Should you need styling, care, or alterations, we’re always here.\n\nThank you for choosing AMPM.\n\nWarm regards,\n' + sign;
+      return 'Dear ' + c + ',\n\nWe hope you\'re enjoying your AMPM piece.\n\nWe\'d love to know how it fits into your wardrobe. Should you need styling, care, or alterations, we\'re always here.\n\nThank you for choosing AMPM.\n\nWarm regards,\n' + sign;
     }
     return '';
   }
@@ -803,6 +975,231 @@
     a.click();
     URL.revokeObjectURL(a.href);
   };
+
+  // ══════ CLIENT DASHBOARD (Purchase History) ══════
+  var cdAllRecords = [];
+  var cdCurrentView = 'summary';
+
+  window.cdSearch = function() {
+    var phone = document.getElementById('cdPhone').value.trim().replace(/\D/g, '');
+    if (phone.length < 10) {
+      cdShowStatus('Enter a valid 10-digit mobile number', 'error');
+      return;
+    }
+    phone = phone.slice(-10);
+
+    document.getElementById('cdProfile').style.display = 'none';
+    document.getElementById('cdHistory').style.display = 'none';
+    document.getElementById('cdStatus').style.display = 'none';
+    document.getElementById('cdLoading').style.display = 'block';
+    document.getElementById('cdSearchBtn').disabled = true;
+
+    fetch(SB_URL + '/client_purchases?client_phone=like.*' + phone + '&order=purchase_date.desc&limit=5000', {
+      headers: sbH()
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      document.getElementById('cdLoading').style.display = 'none';
+      document.getElementById('cdSearchBtn').disabled = false;
+
+      if (!data || !data.length) {
+        cdShowStatus('No purchase records found for this number', 'info');
+        return;
+      }
+
+      cdAllRecords = data;
+      cdRenderProfile(data);
+      cdPopulateFilters(data);
+      cdRenderHistory(data);
+      document.getElementById('cdProfile').style.display = 'block';
+      document.getElementById('cdHistory').style.display = 'block';
+    })
+    .catch(function(err) {
+      document.getElementById('cdLoading').style.display = 'none';
+      document.getElementById('cdSearchBtn').disabled = false;
+      cdShowStatus('Error searching records. Please try again.', 'error');
+    });
+  };
+
+  function cdShowStatus(msg, type) {
+    var el = document.getElementById('cdStatus');
+    el.textContent = msg;
+    el.className = 'cd-status ' + type;
+  }
+
+  function cdRenderProfile(data) {
+    document.getElementById('cdName').textContent = data[0].client_name || 'Unknown';
+    document.getElementById('cdMetaPhone').textContent = '📱 ' + cdFormatPhone(data[0].client_phone);
+    document.getElementById('cdMetaCode').textContent = data[0].customer_code ? '🏷 Code: ' + data[0].customer_code : '';
+    document.getElementById('cdMetaType').textContent = data[0].customer_type ? '👤 ' + data[0].customer_type : '';
+    var city = data[0].city || '', state = data[0].state || '';
+    document.getElementById('cdMetaCity').textContent = city ? '📍 ' + city + (state ? ', ' + state : '') : '';
+
+    var total = data.reduce(function(s, r) { return s + (parseFloat(r.amount) || 0); }, 0);
+    document.getElementById('cdTotal').textContent = cdFormatCurrency(total);
+
+    var totalItems = data.reduce(function(s, r) { return s + (parseInt(r.quantity) || 1); }, 0);
+    document.getElementById('cdItems').textContent = totalItems;
+
+    var uniqueBills = {};
+    data.forEach(function(r) { if (r.invoice_no) uniqueBills[r.invoice_no] = 1; });
+    document.getElementById('cdVisits').textContent = Object.keys(uniqueBills).length;
+
+    var dates = data.map(function(r) { return r.purchase_date; }).filter(Boolean).sort();
+    var lastDate = dates.length ? dates[dates.length - 1] : '-';
+    document.getElementById('cdLast').textContent = lastDate !== '-' ? cdFormatDate(lastDate) : '-';
+
+    document.getElementById('cdStore').textContent = cdTopValue(data, 'store');
+    document.getElementById('cdDept').textContent = cdTopValue(data, 'department');
+
+    var billCount = Object.keys(uniqueBills).length || 1;
+    document.getElementById('cdAvg').textContent = cdFormatCurrency(total / billCount);
+
+    var discounts = data.filter(function(r) { return r.discount_pct != null && r.discount_pct !== ''; });
+    if (discounts.length) {
+      var avgDisc = discounts.reduce(function(s, r) { return s + (parseFloat(r.discount_pct) || 0); }, 0) / discounts.length;
+      document.getElementById('cdDisc').textContent = avgDisc.toFixed(1) + '%';
+    } else {
+      document.getElementById('cdDisc').textContent = '-';
+    }
+  }
+
+  function cdTopValue(data, field) {
+    var counts = {};
+    data.forEach(function(r) { if (r[field]) counts[r[field]] = (counts[r[field]] || 0) + 1; });
+    var top = '-', max = 0;
+    for (var k in counts) { if (counts[k] > max) { max = counts[k]; top = k; } }
+    return top;
+  }
+
+  function cdPopulateFilters(data) {
+    var stores = {}, depts = {}, subcats = {}, seasons = {}, years = {};
+    data.forEach(function(r) {
+      if (r.store) stores[r.store] = 1;
+      if (r.department) depts[r.department] = 1;
+      if (r.sub_category) subcats[r.sub_category] = 1;
+      if (r.quarter_season) seasons[r.quarter_season] = 1;
+      if (r.purchase_date) { var y = r.purchase_date.substring(0, 4); if (y) years[y] = 1; }
+    });
+    cdFillSelect('cdFilterStore', stores, 'All Stores');
+    cdFillSelect('cdFilterDept', depts, 'All Departments');
+    cdFillSelect('cdFilterSubCat', subcats, 'All Sub-Categories');
+    cdFillSelect('cdFilterSeason', seasons, 'All Seasons');
+    cdFillSelect('cdFilterYear', years, 'All Years');
+  }
+
+  function cdFillSelect(id, obj, defaultLabel) {
+    var sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">' + defaultLabel + '</option>';
+    Object.keys(obj).sort().forEach(function(k) {
+      sel.innerHTML += '<option value="' + k + '">' + k + '</option>';
+    });
+  }
+
+  window.cdApplyFilters = function() {
+    var store = document.getElementById('cdFilterStore').value;
+    var dept = document.getElementById('cdFilterDept').value;
+    var subcat = document.getElementById('cdFilterSubCat').value;
+    var season = document.getElementById('cdFilterSeason').value;
+    var year = document.getElementById('cdFilterYear').value;
+
+    var filtered = cdAllRecords.filter(function(r) {
+      if (store && r.store !== store) return false;
+      if (dept && r.department !== dept) return false;
+      if (subcat && r.sub_category !== subcat) return false;
+      if (season && r.quarter_season !== season) return false;
+      if (year && (!r.purchase_date || r.purchase_date.substring(0, 4) !== year)) return false;
+      return true;
+    });
+    cdRenderHistory(filtered);
+  };
+
+  window.cdSetView = function(v) {
+    cdCurrentView = v;
+    document.querySelectorAll('.cd-view-btn').forEach(function(b) {
+      b.classList.toggle('active', b.textContent.toLowerCase().indexOf(v) >= 0);
+    });
+    cdApplyFilters();
+  };
+
+  function cdRenderHistory(data) {
+    var thead = document.getElementById('cdTHead');
+    var tbody = document.getElementById('cdTBody');
+
+    if (cdCurrentView === 'summary') {
+      thead.innerHTML = '<tr><th>Date</th><th>Invoice</th><th>Store</th><th>Dept</th><th>Sub Cat</th><th>Qty</th><th>MRP</th><th>Disc%</th><th>Amount</th></tr>';
+    } else {
+      thead.innerHTML = '<tr><th>Date</th><th>Time</th><th>Invoice</th><th>Store</th><th>Dept</th><th>Sub Cat</th><th>Prod Cat</th><th>Article</th><th>Color</th><th>Size</th><th>Qty</th><th>MRP</th><th>Disc%</th><th>Amount</th><th>Season</th><th>Type</th></tr>';
+    }
+
+    if (!data.length) {
+      var cols = cdCurrentView === 'summary' ? 9 : 16;
+      tbody.innerHTML = '<tr><td colspan="' + cols + '" class="cd-no-data">No records match your filters</td></tr>';
+      document.getElementById('cdRecCount').textContent = '';
+      return;
+    }
+
+    var html = '';
+    var totalFiltered = 0, totalQty = 0;
+    data.forEach(function(r) {
+      var amt = parseFloat(r.amount) || 0;
+      totalFiltered += amt;
+      totalQty += parseInt(r.quantity) || 1;
+      var amtClass = amt < 0 ? 'cd-amt-neg' : 'cd-amt-pos';
+
+      if (cdCurrentView === 'summary') {
+        html += '<tr>' +
+          '<td>' + (r.purchase_date ? cdFormatDate(r.purchase_date) : '-') + '</td>' +
+          '<td>' + esc(r.invoice_no || '-') + '</td>' +
+          '<td>' + esc(r.store || '-') + '</td>' +
+          '<td>' + esc(r.department || '-') + '</td>' +
+          '<td>' + esc(r.sub_category || '-') + '</td>' +
+          '<td style="text-align:center;">' + (r.quantity || '-') + '</td>' +
+          '<td style="text-align:right;">' + (r.mrp ? cdFormatCurrency(parseFloat(r.mrp)) : '-') + '</td>' +
+          '<td style="text-align:center;">' + (r.discount_pct != null && r.discount_pct !== '' ? parseFloat(r.discount_pct).toFixed(0) + '%' : '-') + '</td>' +
+          '<td style="text-align:right;" class="' + amtClass + '">' + cdFormatCurrency(amt) + '</td></tr>';
+      } else {
+        html += '<tr>' +
+          '<td>' + (r.purchase_date ? cdFormatDate(r.purchase_date) : '-') + '</td>' +
+          '<td>' + esc(r.bill_time || '-') + '</td>' +
+          '<td>' + esc(r.invoice_no || '-') + '</td>' +
+          '<td>' + esc(r.store || '-') + '</td>' +
+          '<td>' + esc(r.department || '-') + '</td>' +
+          '<td>' + esc(r.sub_category || '-') + '</td>' +
+          '<td>' + esc(r.product_category || '-') + '</td>' +
+          '<td>' + esc(r.article_number || '-') + '</td>' +
+          '<td>' + esc(r.color || '-') + '</td>' +
+          '<td>' + esc(r.size || '-') + '</td>' +
+          '<td style="text-align:center;">' + (r.quantity || '-') + '</td>' +
+          '<td style="text-align:right;">' + (r.mrp ? cdFormatCurrency(parseFloat(r.mrp)) : '-') + '</td>' +
+          '<td style="text-align:center;">' + (r.discount_pct != null && r.discount_pct !== '' ? parseFloat(r.discount_pct).toFixed(0) + '%' : '-') + '</td>' +
+          '<td style="text-align:right;" class="' + amtClass + '">' + cdFormatCurrency(amt) + '</td>' +
+          '<td>' + esc(r.quarter_season || '-') + '</td>' +
+          '<td>' + esc(r.customer_type || '-') + '</td></tr>';
+      }
+    });
+    tbody.innerHTML = html;
+    document.getElementById('cdRecCount').textContent = data.length + ' records | ' + totalQty + ' items | Total: ' + cdFormatCurrency(totalFiltered);
+  }
+
+  function cdFormatCurrency(n) {
+    if (isNaN(n)) return '-';
+    var prefix = n < 0 ? '-₹' : '₹';
+    return prefix + Math.abs(n).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+  }
+
+  function cdFormatDate(d) {
+    if (!d) return '-';
+    var parts = d.split('-');
+    if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
+    return d;
+  }
+
+  function cdFormatPhone(p) {
+    if (!p) return '';
+    p = p.toString().replace(/\D/g, '').slice(-10);
+    return p.substring(0, 5) + ' ' + p.substring(5);
+  }
 
 })();
 </script>
