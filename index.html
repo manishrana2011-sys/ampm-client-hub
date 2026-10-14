@@ -3,48 +3,676 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AMPM Client Hub</title>
+<title>AMPM Manager Dashboard</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Inter', sans-serif; background: #faf7f3; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-  .header { text-align: center; margin-bottom: 40px; }
-  .header h1 { font-family: 'EB Garamond', Georgia, serif; color: #864624; font-size: 36px; font-weight: 500; letter-spacing: 5px; }
-  .header p { color: #8a7060; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
-  .stores { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; max-width: 600px; }
-  .store-card {
-    background: #fff; border: 2px solid #d4c4b4; border-radius: 12px; padding: 28px 36px;
-    text-align: center; cursor: pointer; transition: 0.2s; text-decoration: none; min-width: 160px;
+
+  :root {
+    --cream: #F4ECE3;
+    --brown: #864624;
+    --brown-light: #a8653d;
+    --brown-dark: #6b371c;
+    --text-dark: #2c1a0e;
+    --text-mid: #5a3f2a;
+    --text-light: #8a7060;
+    --border: #d4c4b4;
+    --white: #ffffff;
+    --bg: #faf7f3;
+    --green: #2e7d32;
+    --green-bg: #e8f5e9;
+    --red: #c0392b;
+    --red-bg: #fdf0ef;
+    --orange: #e67e22;
+    --orange-bg: #fef5ec;
+    --blue: #2980b9;
+    --blue-bg: #e3f2fd;
+    --purple: #7b1fa2;
+    --purple-bg: #f3e5f5;
   }
-  .store-card:hover { border-color: #864624; background: #f9f0e7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(134,70,36,0.15); }
-  .store-card .icon { font-size: 32px; margin-bottom: 8px; }
-  .store-card .name { font-size: 15px; font-weight: 600; color: #2c1a0e; }
-  .store-card .sub { font-size: 11px; color: #8a7060; margin-top: 4px; }
-  .note { text-align: center; color: #8a7060; font-size: 11px; margin-top: 30px; line-height: 1.6; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-dark);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  .header {
+    background: var(--brown);
+    padding: 20px 16px 18px;
+    text-align: center;
+  }
+  .header h1 {
+    font-family: 'EB Garamond', Georgia, serif;
+    color: var(--cream);
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: 6px;
+  }
+  .header p {
+    color: rgba(244,236,227,0.7);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .main { max-width: 1200px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  /* Quick store links */
+  .store-links {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; justify-content: center;
+  }
+  .store-link {
+    background: var(--white); border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 10px 20px; text-decoration: none; text-align: center; transition: 0.2s;
+    font-size: 12px; font-weight: 600; color: var(--text-dark);
+  }
+  .store-link:hover { border-color: var(--brown); background: #f9f0e7; }
+  .store-link span { display: block; font-size: 10px; color: var(--text-light); font-weight: 400; margin-top: 2px; }
+
+  /* Date & Refresh */
+  .toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px; flex-wrap: wrap; gap: 10px;
+  }
+  .toolbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .date-label {
+    font-family: 'EB Garamond', Georgia, serif; font-size: 20px;
+    font-weight: 600; color: var(--brown);
+  }
+  .date-pick {
+    padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 6px;
+    font-family: 'Inter', sans-serif; font-size: 12px; background: var(--white);
+  }
+  .refresh-btn {
+    padding: 8px 16px; background: var(--brown); color: var(--cream);
+    border: none; border-radius: 6px; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  .refresh-btn:hover { background: var(--brown-dark); }
+  .last-refresh { font-size: 10px; color: var(--text-light); }
+
+  /* Store tabs */
+  .store-tabs {
+    display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--border);
+  }
+  .store-tab {
+    padding: 12px 24px; font-size: 13px; font-weight: 600; cursor: pointer;
+    color: var(--text-light); border-bottom: 3px solid transparent;
+    margin-bottom: -2px; transition: 0.2s;
+  }
+  .store-tab:hover { color: var(--text-dark); }
+  .store-tab.active { color: var(--brown); border-bottom-color: var(--brown); }
+  .store-tab .tab-dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    margin-left: 6px; vertical-align: middle;
+  }
+  .dot-green { background: var(--green); }
+  .dot-orange { background: var(--orange); }
+  .dot-red { background: var(--red); }
+
+  /* Overview cards */
+  .overview {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px; margin-bottom: 24px;
+  }
+  .ov-card {
+    background: var(--white); border-radius: 10px; padding: 16px 14px;
+    border: 1px solid #e8ddd2; text-align: center;
+  }
+  .ov-val {
+    font-family: 'EB Garamond', Georgia, serif; font-size: 28px;
+    font-weight: 700; color: var(--brown); font-variant-numeric: tabular-nums;
+  }
+  .ov-val.green { color: var(--green); }
+  .ov-val.red { color: var(--red); }
+  .ov-val.orange { color: var(--orange); }
+  .ov-val.blue { color: var(--blue); }
+  .ov-lbl {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-light); margin-top: 4px;
+  }
+
+  /* Section titles */
+  .sec-title {
+    font-family: 'EB Garamond', Georgia, serif; font-size: 18px;
+    font-weight: 600; color: var(--brown); margin-bottom: 12px;
+    padding-bottom: 6px; border-bottom: 1px solid #e8ddd2;
+  }
+
+  /* Status grids */
+  .status-section { margin-bottom: 24px; }
+  .status-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px; margin-bottom: 12px;
+  }
+  .st-card {
+    background: var(--white); border-radius: 8px; padding: 12px 10px;
+    border: 1px solid #e8ddd2; text-align: center;
+  }
+  .st-card.active-status { border-left: 3px solid var(--orange); }
+  .st-card.done-status { border-left: 3px solid var(--green); }
+  .st-val {
+    font-family: 'EB Garamond', Georgia, serif; font-size: 22px;
+    font-weight: 700; color: var(--text-dark); font-variant-numeric: tabular-nums;
+  }
+  .st-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-light); margin-top: 2px; }
+
+  /* Message activity table */
+  .msg-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 16px; }
+  .msg-table {
+    width: 100%; border-collapse: collapse; font-size: 12px;
+  }
+  .msg-table thead th {
+    background: var(--brown); color: var(--cream); padding: 10px 12px;
+    text-align: left; font-weight: 600; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+  }
+  .msg-table thead th:first-child { border-radius: 6px 0 0 0; }
+  .msg-table thead th:last-child { border-radius: 0 6px 0 0; }
+  .msg-table tbody td {
+    padding: 10px 12px; border-bottom: 1px solid #f0e8df;
+    vertical-align: middle;
+  }
+  .msg-table tbody tr:hover { background: rgba(134,70,36,0.03); }
+
+  /* Badge */
+  .badge {
+    display: inline-block; padding: 3px 8px; border-radius: 10px;
+    font-size: 10px; font-weight: 600;
+  }
+  .badge-mto { background: var(--blue-bg); color: var(--blue); }
+  .badge-alt { background: var(--purple-bg); color: var(--purple); }
+  .badge-care { background: var(--green-bg); color: var(--green); }
+
+  /* All stores comparison */
+  .compare-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px; margin-bottom: 24px;
+  }
+  .compare-card {
+    background: var(--white); border-radius: 10px; padding: 18px;
+    border: 1px solid #e8ddd2;
+  }
+  .compare-card h3 {
+    font-family: 'EB Garamond', Georgia, serif; font-size: 16px;
+    font-weight: 600; color: var(--brown); margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .compare-card h3 .count {
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
+    background: var(--brown); color: var(--cream); padding: 2px 10px;
+    border-radius: 10px;
+  }
+  .mini-row {
+    display: flex; justify-content: space-between; padding: 6px 0;
+    border-bottom: 1px solid #f5ede4; font-size: 12px;
+  }
+  .mini-row:last-child { border-bottom: none; }
+  .mini-row .mr-label { color: var(--text-mid); }
+  .mini-row .mr-val { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* Alert row */
+  .alert-row {
+    background: var(--red-bg); border: 1px solid #f5c6c0; border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 12px; font-size: 12px;
+    color: var(--red); display: none;
+  }
+  .alert-row.show { display: block; }
+
+  /* No data */
+  .no-data { text-align: center; padding: 30px 16px; color: var(--text-light); font-size: 12px; }
+
+  /* Loading */
+  .loading { text-align: center; padding: 40px; }
+  .spinner {
+    width: 28px; height: 28px; border: 3px solid var(--border);
+    border-top-color: var(--brown); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 12px; color: var(--text-light); }
+
+  /* Order detail rows */
+  .order-list { margin-top: 8px; }
+  .order-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 12px; border-bottom: 1px solid #f5ede4; font-size: 12px;
+  }
+  .order-row:last-child { border-bottom: none; }
+  .order-client { font-weight: 600; color: var(--text-dark); }
+  .order-meta { color: var(--text-light); font-size: 11px; }
+  .order-status {
+    padding: 3px 10px; border-radius: 10px; font-size: 10px; font-weight: 600;
+  }
+  .os-confirmed { background: var(--blue-bg); color: var(--blue); }
+  .os-delayed { background: var(--orange-bg); color: var(--orange); }
+  .os-ready { background: var(--green-bg); color: var(--green); }
+  .os-dispatched { background: var(--purple-bg); color: var(--purple); }
+  .os-delivered { background: #e8e8e8; color: #666; }
+  .os-received { background: var(--blue-bg); color: var(--blue); }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 600px) {
+    .store-tab { padding: 10px 14px; font-size: 12px; }
+    .overview { grid-template-columns: repeat(2, 1fr); }
+    .compare-grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
-  <div class="header">
-    <h1>AMPM</h1>
-    <p>Messages · Tracker · Client Lookup</p>
+
+<div class="header">
+  <h1>AMPM</h1>
+  <p>Manager Dashboard</p>
+</div>
+
+<div class="main">
+
+  <!-- Quick store links -->
+  <div class="store-links">
+    <a class="store-link" href="AMPM_Emporio.html">Emporio <span>Vasant Kunj</span></a>
+    <a class="store-link" href="AMPM_KhanMarket.html">Khan Market <span>Central Delhi</span></a>
+    <a class="store-link" href="AMPM_Mehrauli.html">Mehrauli <span>Kila</span></a>
   </div>
-  <div class="stores">
-    <a class="store-card" href="AMPM_Emporio.html">
-      <div class="icon">🏛️</div>
-      <div class="name">Emporio</div>
-      <div class="sub">Vasant Kunj</div>
-    </a>
-    <a class="store-card" href="AMPM_KhanMarket.html">
-      <div class="icon">🏪</div>
-      <div class="name">Khan Market</div>
-      <div class="sub">Central Delhi</div>
-    </a>
-    <a class="store-card" href="AMPM_Mehrauli.html">
-      <div class="icon">🏰</div>
-      <div class="name">Mehrauli</div>
-      <div class="sub">Kila</div>
-    </a>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <div class="date-label">Activity Dashboard</div>
+      <input type="date" id="dateFilter" class="date-pick">
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="last-refresh" id="lastRefresh"></span>
+      <button class="refresh-btn" onclick="loadAll()">Refresh</button>
+    </div>
   </div>
-  <div class="note">Each store includes: Messaging · Order Tracker · Client Lookup<br>Phone numbers are never stored in messaging.</div>
+
+  <!-- Store tabs -->
+  <div class="store-tabs">
+    <div class="store-tab active" onclick="switchStore('all')">All Stores</div>
+    <div class="store-tab" onclick="switchStore('emporio')">Emporio <span class="tab-dot" id="dot_emporio"></span></div>
+    <div class="store-tab" onclick="switchStore('khan_market')">Khan Market <span class="tab-dot" id="dot_khan_market"></span></div>
+    <div class="store-tab" onclick="switchStore('mehrauli')">Mehrauli <span class="tab-dot" id="dot_mehrauli"></span></div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loadingState">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading store data...</div>
+  </div>
+
+  <!-- ALL STORES VIEW -->
+  <div id="viewAll" class="hidden">
+    <!-- Alert -->
+    <div class="alert-row" id="alertRow"></div>
+
+    <!-- Overview -->
+    <div class="overview" id="overviewAll"></div>
+
+    <!-- Compare cards -->
+    <div class="sec-title">Store Comparison — Today</div>
+    <div class="compare-grid" id="compareGrid"></div>
+
+    <!-- Active Orders Summary -->
+    <div class="sec-title">Active Orders Across Stores</div>
+    <div class="compare-grid" id="activeOrdersGrid"></div>
+  </div>
+
+  <!-- SINGLE STORE VIEW -->
+  <div id="viewStore" class="hidden">
+    <!-- Overview -->
+    <div class="overview" id="overviewStore"></div>
+
+    <!-- MTO Section -->
+    <div class="status-section">
+      <div class="sec-title">MTO Orders</div>
+      <div class="status-grid" id="mtoStatus"></div>
+      <div id="mtoOrders"></div>
+    </div>
+
+    <!-- Alteration Section -->
+    <div class="status-section">
+      <div class="sec-title">Alteration Orders</div>
+      <div class="status-grid" id="altStatus"></div>
+      <div id="altOrders"></div>
+    </div>
+
+    <!-- Client Care -->
+    <div class="status-section">
+      <div class="sec-title">Client Care Messages</div>
+      <div id="careMessages"></div>
+    </div>
+
+    <!-- Today's Message Log -->
+    <div class="status-section">
+      <div class="sec-title">Message Log — <span id="logDateLabel">Today</span></div>
+      <div class="msg-table-wrap" id="msgLogWrap">
+        <div class="no-data">No messages found</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var SB_URL = 'https://exloaxjttpvagoftsjbt.supabase.co/rest/v1';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4bG9heGp0dHB2YWdvZnRzamJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MzE1MzAsImV4cCI6MjEwNzIwNzUzMH0.Po0m9YKci5vDf0A61usu7OKL6Jx9mJOd8ls4CWOvZig';
+var STORES = ['emporio','khan_market','mehrauli'];
+var STORE_NAMES = {emporio:'Emporio', khan_market:'Khan Market', mehrauli:'Mehrauli'};
+
+function sbH() { return {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}; }
+function sbFetch(table, query) {
+  return fetch(SB_URL+'/'+table+'?'+query, {headers:sbH()}).then(function(r){return r.json()}).catch(function(){return []});
+}
+
+var allData = { mto:{}, alt:{}, logs:{} };
+var currentStore = 'all';
+var selectedDate = new Date().toISOString().slice(0,10);
+
+// Set date picker
+document.getElementById('dateFilter').value = selectedDate;
+document.getElementById('dateFilter').addEventListener('change', function() {
+  selectedDate = this.value;
+  loadAll();
+});
+
+function esc(s) { var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+function loadAll() {
+  document.getElementById('loadingState').classList.remove('hidden');
+  document.getElementById('viewAll').classList.add('hidden');
+  document.getElementById('viewStore').classList.add('hidden');
+
+  var promises = [];
+
+  // Load MTO orders for all stores
+  promises.push(sbFetch('mto_orders','select=*').then(function(d) {
+    allData.mto = {};
+    STORES.forEach(function(s) { allData.mto[s] = []; });
+    (d||[]).forEach(function(r) { if(allData.mto[r.store]) allData.mto[r.store].push(r); });
+  }));
+
+  // Load Alteration orders for all stores
+  promises.push(sbFetch('alteration_orders','select=*').then(function(d) {
+    allData.alt = {};
+    STORES.forEach(function(s) { allData.alt[s] = []; });
+    (d||[]).forEach(function(r) { if(allData.alt[r.store]) allData.alt[r.store].push(r); });
+  }));
+
+  // Load message logs for selected date
+  promises.push(sbFetch('message_logs','log_date=eq.'+selectedDate+'&order=id.desc').then(function(d) {
+    allData.logs = {};
+    STORES.forEach(function(s) { allData.logs[s] = []; });
+    (d||[]).forEach(function(r) { if(allData.logs[r.store]) allData.logs[r.store].push(r); });
+  }));
+
+  Promise.all(promises).then(function() {
+    document.getElementById('loadingState').classList.add('hidden');
+    document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    updateDots();
+    renderView();
+  });
+}
+
+function updateDots() {
+  STORES.forEach(function(s) {
+    var dot = document.getElementById('dot_'+s);
+    var count = (allData.logs[s]||[]).length;
+    dot.className = 'tab-dot ' + (count >= 3 ? 'dot-green' : count >= 1 ? 'dot-orange' : 'dot-red');
+  });
+}
+
+function switchStore(s) {
+  currentStore = s;
+  var tabs = document.querySelectorAll('.store-tab');
+  tabs[0].classList.toggle('active', s==='all');
+  tabs[1].classList.toggle('active', s==='emporio');
+  tabs[2].classList.toggle('active', s==='khan_market');
+  tabs[3].classList.toggle('active', s==='mehrauli');
+  renderView();
+}
+
+function renderView() {
+  if (currentStore === 'all') {
+    document.getElementById('viewAll').classList.remove('hidden');
+    document.getElementById('viewStore').classList.add('hidden');
+    renderAllStores();
+  } else {
+    document.getElementById('viewAll').classList.add('hidden');
+    document.getElementById('viewStore').classList.remove('hidden');
+    renderSingleStore(currentStore);
+  }
+}
+
+function countByStatus(arr, statuses) {
+  var c = {};
+  statuses.forEach(function(s) { c[s] = 0; });
+  arr.forEach(function(r) { if(c[r.status] !== undefined) c[r.status]++; });
+  return c;
+}
+
+// ── ALL STORES VIEW ──
+function renderAllStores() {
+  var totalMsgs=0, totalMTO=0, totalAlt=0, totalCare=0;
+  var activeMTO=0, activeAlt=0;
+
+  STORES.forEach(function(s) {
+    var logs = allData.logs[s]||[];
+    totalMsgs += logs.length;
+    logs.forEach(function(l) {
+      var t = (l.template||'').toLowerCase();
+      if (t.indexOf('alt') === 0) totalAlt++;
+      else if (t.indexOf('order') >= 0 || t.indexOf('delay') >= 0 || t.indexOf('ready') >= 0 || t.indexOf('dispatch') >= 0 || t.indexOf('mto') >= 0) totalMTO++;
+      else totalCare++;
+    });
+    (allData.mto[s]||[]).forEach(function(r) { if(r.status!=='Delivered') activeMTO++; });
+    (allData.alt[s]||[]).forEach(function(r) { if(r.status!=='Delivered') activeAlt++; });
+  });
+
+  // Overview
+  var ovH = '';
+  ovH += '<div class="ov-card"><div class="ov-val">' + totalMsgs + '</div><div class="ov-lbl">Messages Today</div></div>';
+  ovH += '<div class="ov-card"><div class="ov-val blue">' + totalMTO + '</div><div class="ov-lbl">MTO Messages</div></div>';
+  ovH += '<div class="ov-card"><div class="ov-val" style="color:var(--purple)">' + totalAlt + '</div><div class="ov-lbl">Alteration Messages</div></div>';
+  ovH += '<div class="ov-card"><div class="ov-val green">' + totalCare + '</div><div class="ov-lbl">Client Care</div></div>';
+  ovH += '<div class="ov-card"><div class="ov-val orange">' + activeMTO + '</div><div class="ov-lbl">Active MTO Orders</div></div>';
+  ovH += '<div class="ov-card"><div class="ov-val orange">' + activeAlt + '</div><div class="ov-lbl">Active Alterations</div></div>';
+  document.getElementById('overviewAll').innerHTML = ovH;
+
+  // Alerts
+  var alerts = [];
+  STORES.forEach(function(s) {
+    if ((allData.logs[s]||[]).length === 0) alerts.push(STORE_NAMES[s] + ' has sent 0 messages today');
+    (allData.mto[s]||[]).forEach(function(r) {
+      if (r.status === 'Ready') alerts.push(STORE_NAMES[s] + ': MTO order for ' + esc(r.client) + ' is Ready but not Delivered');
+    });
+    (allData.alt[s]||[]).forEach(function(r) {
+      if (r.status === 'Ready') alerts.push(STORE_NAMES[s] + ': Alteration for ' + esc(r.client) + ' is Ready but not Delivered');
+    });
+  });
+  var alertEl = document.getElementById('alertRow');
+  if (alerts.length) {
+    alertEl.innerHTML = '<strong>&#9888; Attention:</strong> ' + alerts.join(' · ');
+    alertEl.classList.add('show');
+  } else { alertEl.classList.remove('show'); }
+
+  // Compare cards — messages per store
+  var cH = '';
+  STORES.forEach(function(s) {
+    var logs = allData.logs[s]||[];
+    var mtoMsgs=0, altMsgs=0, careMsgs=0;
+    logs.forEach(function(l) {
+      var t = (l.template||'').toLowerCase();
+      if (t.indexOf('alt') === 0) altMsgs++;
+      else if (t.indexOf('order')>=0 || t.indexOf('delay')>=0 || t.indexOf('ready')>=0 || t.indexOf('dispatch')>=0 || t.indexOf('mto')>=0) mtoMsgs++;
+      else careMsgs++;
+    });
+    cH += '<div class="compare-card">';
+    cH += '<h3>' + STORE_NAMES[s] + ' <span class="count">' + logs.length + ' msgs</span></h3>';
+    cH += '<div class="mini-row"><span class="mr-label">MTO Messages</span><span class="mr-val">' + mtoMsgs + '</span></div>';
+    cH += '<div class="mini-row"><span class="mr-label">Alteration Messages</span><span class="mr-val">' + altMsgs + '</span></div>';
+    cH += '<div class="mini-row"><span class="mr-label">Client Care (Thank You / Follow-up)</span><span class="mr-val">' + careMsgs + '</span></div>';
+    // last message time
+    if (logs.length) {
+      cH += '<div class="mini-row"><span class="mr-label">Last Message</span><span class="mr-val">' + esc(logs[0].send_time||'') + ' — ' + esc(logs[0].client||'') + '</span></div>';
+    }
+    cH += '</div>';
+  });
+  document.getElementById('compareGrid').innerHTML = cH;
+
+  // Active orders per store
+  var aoH = '';
+  STORES.forEach(function(s) {
+    var mto = allData.mto[s]||[];
+    var alt = allData.alt[s]||[];
+    var mtoActive = mto.filter(function(r){return r.status!=='Delivered'});
+    var altActive = alt.filter(function(r){return r.status!=='Delivered'});
+
+    aoH += '<div class="compare-card">';
+    aoH += '<h3>' + STORE_NAMES[s] + '</h3>';
+
+    if (mtoActive.length || altActive.length) {
+      // MTO breakdown
+      var mc = countByStatus(mto, ['Confirmed','Delayed','Ready','Dispatched','Delivered']);
+      aoH += '<div class="mini-row"><span class="mr-label">MTO — Confirmed</span><span class="mr-val">' + mc.Confirmed + '</span></div>';
+      aoH += '<div class="mini-row"><span class="mr-label">MTO — Delayed</span><span class="mr-val" style="color:' + (mc.Delayed?'var(--orange)':'inherit') + '">' + mc.Delayed + '</span></div>';
+      aoH += '<div class="mini-row"><span class="mr-label">MTO — Ready (pending pickup)</span><span class="mr-val" style="color:' + (mc.Ready?'var(--red)':'inherit') + '">' + mc.Ready + '</span></div>';
+      aoH += '<div class="mini-row"><span class="mr-label">MTO — Dispatched</span><span class="mr-val">' + mc.Dispatched + '</span></div>';
+      aoH += '<div class="mini-row"><span class="mr-label">MTO — Delivered ✓</span><span class="mr-val" style="color:var(--green)">' + mc.Delivered + '</span></div>';
+      // Alt breakdown
+      var ac = countByStatus(alt, ['Received','Ready','Dispatched','Delivered']);
+      aoH += '<div class="mini-row" style="margin-top:8px;border-top:2px solid #f0e8df;padding-top:8px"><span class="mr-label">Alt — Received</span><span class="mr-val">' + ac.Received + '</span></div>';
+      aoH += '<div class="mini-row"><span class="mr-label">Alt — Ready (pending pickup)</span><span class="mr-val" style="color:' + (ac.Ready?'var(--red)':'inherit') + '">' + ac.Ready + '</span></div>';
+      aoH += '<div class="mini-row"><span class="mr-label">Alt — Dispatched</span><span class="mr-val">' + ac.Dispatched + '</span></div>';
+      aoH += '<div class="mini-row"><span class="mr-label">Alt — Delivered ✓</span><span class="mr-val" style="color:var(--green)">' + ac.Delivered + '</span></div>';
+    } else {
+      aoH += '<div class="no-data">No active orders</div>';
+    }
+    aoH += '</div>';
+  });
+  document.getElementById('activeOrdersGrid').innerHTML = aoH;
+}
+
+// ── SINGLE STORE VIEW ──
+function renderSingleStore(store) {
+  var logs = allData.logs[store]||[];
+  var mto = allData.mto[store]||[];
+  var alt = allData.alt[store]||[];
+
+  // Count message types
+  var mtoMsgs=0, altMsgs=0, careMsgs=0;
+  var careList = [];
+  logs.forEach(function(l) {
+    var t = (l.template||'').toLowerCase();
+    if (t.indexOf('alt') === 0) altMsgs++;
+    else if (t.indexOf('order')>=0 || t.indexOf('delay')>=0 || t.indexOf('ready')>=0 || t.indexOf('dispatch')>=0 || t.indexOf('mto')>=0) mtoMsgs++;
+    else { careMsgs++; careList.push(l); }
+  });
+
+  var mtoActive = mto.filter(function(r){return r.status!=='Delivered'}).length;
+  var altActive = alt.filter(function(r){return r.status!=='Delivered'}).length;
+
+  // Overview
+  var ovH = '';
+  ovH += '<div class="ov-card"><div class="ov-val">' + logs.length + '</div><div class="ov-lbl">Messages Today</div></div>';
+  ovH += '<div class="ov-card"><div class="ov-val blue">' + mtoMsgs + '</div><div class="ov-lbl">MTO Messages</div></div>';
+  ovH += '<div class="ov-card"><div class="ov-val" style="color:var(--purple)">' + altMsgs + '</div><div class="ov-lbl">Alt Messages</div></div>';
+  ovH += '<div class="ov-card"><div class="ov-val green">' + careMsgs + '</div><div class="ov-lbl">Client Care</div></div>';
+  ovH += '<div class="ov-card"><div class="ov-val orange">' + mtoActive + '</div><div class="ov-lbl">Active MTO</div></div>';
+  ovH += '<div class="ov-card"><div class="ov-val orange">' + altActive + '</div><div class="ov-lbl">Active Alt</div></div>';
+  document.getElementById('overviewStore').innerHTML = ovH;
+
+  // MTO status
+  var mc = countByStatus(mto, ['Confirmed','Delayed','Ready','Dispatched','Delivered']);
+  var mH = '';
+  mH += '<div class="st-card active-status"><div class="st-val">' + mc.Confirmed + '</div><div class="st-lbl">Confirmed</div></div>';
+  mH += '<div class="st-card active-status"><div class="st-val">' + mc.Delayed + '</div><div class="st-lbl">Delayed</div></div>';
+  mH += '<div class="st-card active-status"><div class="st-val">' + mc.Ready + '</div><div class="st-lbl">Ready</div></div>';
+  mH += '<div class="st-card active-status"><div class="st-val">' + mc.Dispatched + '</div><div class="st-lbl">Dispatched</div></div>';
+  mH += '<div class="st-card done-status"><div class="st-val">' + mc.Delivered + '</div><div class="st-lbl">Delivered</div></div>';
+  document.getElementById('mtoStatus').innerHTML = mH;
+
+  // MTO active orders list
+  var mtoActiveList = mto.filter(function(r){return r.status!=='Delivered'});
+  var moH = '';
+  if (mtoActiveList.length) {
+    mtoActiveList.forEach(function(r) {
+      var sc = 'os-' + r.status.toLowerCase();
+      moH += '<div class="order-row">';
+      moH += '<div><span class="order-client">' + esc(r.client) + '</span>';
+      if (r.style) moH += ' <span class="order-meta">· ' + esc(r.style) + '</span>';
+      moH += '</div>';
+      moH += '<div style="text-align:right"><span class="order-status ' + sc + '">' + esc(r.status) + '</span>';
+      if (r.lastUpdate) moH += '<div class="order-meta">' + esc(r.lastUpdate) + '</div>';
+      moH += '</div></div>';
+    });
+  } else { moH = '<div class="no-data">No active MTO orders</div>'; }
+  document.getElementById('mtoOrders').innerHTML = '<div class="order-list">' + moH + '</div>';
+
+  // Alteration status
+  var ac = countByStatus(alt, ['Received','Ready','Dispatched','Delivered']);
+  var aH = '';
+  aH += '<div class="st-card active-status"><div class="st-val">' + ac.Received + '</div><div class="st-lbl">Received</div></div>';
+  aH += '<div class="st-card active-status"><div class="st-val">' + ac.Ready + '</div><div class="st-lbl">Ready</div></div>';
+  aH += '<div class="st-card active-status"><div class="st-val">' + ac.Dispatched + '</div><div class="st-lbl">Dispatched</div></div>';
+  aH += '<div class="st-card done-status"><div class="st-val">' + ac.Delivered + '</div><div class="st-lbl">Delivered</div></div>';
+  document.getElementById('altStatus').innerHTML = aH;
+
+  // Alt active orders list
+  var altActiveList = alt.filter(function(r){return r.status!=='Delivered'});
+  var aoH = '';
+  if (altActiveList.length) {
+    altActiveList.forEach(function(r) {
+      var sc = 'os-' + r.status.toLowerCase();
+      aoH += '<div class="order-row">';
+      aoH += '<div><span class="order-client">' + esc(r.client) + '</span>';
+      if (r.style) aoH += ' <span class="order-meta">· ' + esc(r.style) + '</span>';
+      aoH += '</div>';
+      aoH += '<div style="text-align:right"><span class="order-status ' + sc + '">' + esc(r.status) + '</span>';
+      if (r.lastUpdate) aoH += '<div class="order-meta">' + esc(r.lastUpdate) + '</div>';
+      aoH += '</div></div>';
+    });
+  } else { aoH = '<div class="no-data">No active alteration orders</div>'; }
+  document.getElementById('altOrders').innerHTML = '<div class="order-list">' + aoH + '</div>';
+
+  // Client care
+  var ccH = '';
+  if (careList.length) {
+    careList.forEach(function(l) {
+      ccH += '<div class="order-row">';
+      ccH += '<div><span class="order-client">' + esc(l.client) + '</span> <span class="badge badge-care">' + esc(l.template) + '</span></div>';
+      ccH += '<div class="order-meta">' + esc(l.send_time||'') + '</div>';
+      ccH += '</div>';
+    });
+  } else { ccH = '<div class="no-data">No client care messages sent today</div>'; }
+  document.getElementById('careMessages').innerHTML = '<div class="order-list">' + ccH + '</div>';
+
+  // Full message log
+  var dateLabel = selectedDate === new Date().toISOString().slice(0,10) ? 'Today' : selectedDate;
+  document.getElementById('logDateLabel').textContent = dateLabel;
+
+  if (logs.length) {
+    var tH = '<table class="msg-table"><thead><tr><th>Time</th><th>Client</th><th>Message Type</th></tr></thead><tbody>';
+    logs.forEach(function(l) {
+      var t = (l.template||'').toLowerCase();
+      var bc = t.indexOf('alt')===0 ? 'badge-alt' : (t.indexOf('thank')>=0||t.indexOf('follow')>=0 ? 'badge-care' : 'badge-mto');
+      tH += '<tr><td>' + esc(l.send_time||'') + '</td><td><strong>' + esc(l.client||'') + '</strong></td>';
+      tH += '<td><span class="badge ' + bc + '">' + esc(l.template||'') + '</span></td></tr>';
+    });
+    tH += '</tbody></table>';
+    document.getElementById('msgLogWrap').innerHTML = tH;
+  } else {
+    document.getElementById('msgLogWrap').innerHTML = '<div class="no-data">No messages found for this date</div>';
+  }
+}
+
+// Initial load
+loadAll();
+</script>
 </body>
 </html>
