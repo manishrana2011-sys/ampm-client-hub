@@ -367,7 +367,7 @@ var STORE_NAMES = {emporio:'Emporio', khan_market:'Khan Market', mehrauli:'Mehra
 
 function sbH() { return {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}; }
 function sbFetch(table, query) {
-  return fetch(SB_URL+'/'+table+'?'+query, {headers:sbH()}).then(function(r){return r.json()}).catch(function(){return []});
+  return fetch(SB_URL+'/'+table+'?'+query, {headers:sbH()}).then(function(r){return r.json()}).then(function(d){return Array.isArray(d)?d:[]}).catch(function(){return []});
 }
 
 var allData = { mto:{}, alt:{}, logs:{} };
@@ -415,6 +415,11 @@ function loadAll() {
     document.getElementById('loadingState').classList.add('hidden');
     document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
     updateDots();
+    renderView();
+  }).catch(function(err) {
+    console.error('Dashboard load error:', err);
+    document.getElementById('loadingState').classList.add('hidden');
+    document.getElementById('lastRefresh').textContent = 'Error loading — tap Refresh';
     renderView();
   });
 }
