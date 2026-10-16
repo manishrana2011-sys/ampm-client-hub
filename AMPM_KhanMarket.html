@@ -427,6 +427,7 @@
         <div class="template-card" data-t="mto_delay" onclick="selTpl(this)"><div class="t-icon">&#9203;</div><div class="t-name">Delay Intimation</div><div class="t-sub">Proactive</div></div>
         <div class="template-card" data-t="mto_ready" onclick="selTpl(this)"><div class="t-icon">&#128230;</div><div class="t-name">Ready to Collect</div><div class="t-sub">In store</div></div>
         <div class="template-card" data-t="mto_dispatch" onclick="selTpl(this)"><div class="t-icon">&#128666;</div><div class="t-name">Post-Dispatch</div><div class="t-sub">Shipped</div></div>
+        <div class="template-card" data-t="mto_delivered" onclick="selTpl(this)"><div class="t-icon">&#9989;</div><div class="t-name">Delivered</div><div class="t-sub">Collected</div></div>
       </div>
       <div id="f_mto_confirm" class="conditional">
         <label>Style Name</label><input type="text" id="mtoStyle" placeholder="e.g. Ivory Chanderi Anarkali">
@@ -703,6 +704,9 @@
       var me = fD(document.getElementById('mtoED').value) || '[Date]';
       return 'Dear ' + c + ',\n\nYour AMPM MTO order has been dispatched.\n\nShipment Details:\n• Courier: ' + mc + '\n• Tracking: ' + mt + '\n• Expected Delivery: ' + me + '\n\nPlease reach out if you need any assistance.\n\nWe hope you love your new AMPM piece.\n\nWarm regards,\n' + sign;
     }
+    if (selectedTemplate === 'mto_delivered') {
+      return 'Dear ' + c + ',\n\nThank you for collecting your AMPM MTO order from our ' + STORE + ' store.\n\nWe hope the outfit is everything you envisioned. Kindly reply \'Received\' to confirm.\n\nShould you need any alterations or styling assistance, we are always here for you.\n\nWarm regards,\n' + sign;
+    }
     if (selectedTemplate === 'alt_received') {
       var st = document.getElementById('altSt').value.trim() || '[Style]';
       var dt = document.getElementById('altDt').value.trim() || '[Details]';
@@ -783,8 +787,8 @@
 
     // Save to tracker
     if (selectedTemplate.startsWith('mto_')) {
-      var statusMap = {mto_confirm:'Confirmed', mto_delay:'Delayed', mto_ready:'Ready', mto_dispatch:'Dispatched'};
-      var existing = mtoData.find(function(e) { return e.client.toLowerCase() === cn.toLowerCase() && e.status !== 'Dispatched' && e.status !== 'Delivered'; });
+      var statusMap = {mto_confirm:'Confirmed', mto_delay:'Delayed', mto_ready:'Ready', mto_dispatch:'Dispatched', mto_delivered:'Delivered'};
+      var existing = mtoData.find(function(e) { return e.client.toLowerCase() === cn.toLowerCase() && e.status !== 'Delivered' && (selectedTemplate === 'mto_delivered' ? true : e.status !== 'Dispatched'); });
       if (existing) {
         existing.status = statusMap[selectedTemplate];
         existing.lastUpdate = now;
@@ -822,10 +826,10 @@
     }
 
     // Log
-    var tplNames = {mto_confirm:'Order Confirmation', mto_delay:'Delay Intimation', mto_ready:'Ready for Collection', mto_dispatch:'Post-Dispatch', alt_received:'Alt. Received', alt_ready:'Alt. Ready', alt_dispatch:'Alt. Dispatched', alt_delivered:'Alt. Delivered', care_thankyou:'Thank You', care_followup:'Follow-up'};
+    var tplNames = {mto_confirm:'Order Confirmation', mto_delay:'Delay Intimation', mto_ready:'Ready for Collection', mto_dispatch:'Post-Dispatch', mto_delivered:'MTO Delivered', alt_received:'Alt. Received', alt_ready:'Alt. Ready', alt_dispatch:'Alt. Dispatched', alt_delivered:'Alt. Delivered', care_thankyou:'Thank You', care_followup:'Follow-up'};
     var sendTime = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
     messageLog.unshift({client: cn, template: tplNames[selectedTemplate], time: sendTime});
-    sbInsert('message_logs', {client: cn, template: tplNames[selectedTemplate], send_time: sendTime, log_date: new Date().toISOString().slice(0,10)});
+    sbInsert('message_logs', {client: cn, template: tplNames[selectedTemplate], send_time: sendTime, log_date: new Date().toISOString().slice(0,10), client_name: cn, template_name: tplNames[selectedTemplate]});
     renderLog();
 
     window.open(url, 'ampm_whatsapp');
@@ -899,7 +903,7 @@
     var actC = 0; data.forEach(function(e) { if (activeS.indexOf(e.status)>-1) actC++; });
     var fH = '<div class="filter-chip' + (currentFilter==='active'?' active':'') + '" onclick="dFilt(\'active\')">Active <span class="fc">' + actC + '</span></div>';
     fH += '<div class="filter-chip' + (currentFilter==='overdue'?' active':'') + '" onclick="dFilt(\'overdue\')">Overdue <span class="fc">' + odC + '</span></div>';
-    var allSt = isMto ? ['Confirmed','Delayed','Ready','Dispatched'] : ['Received','Ready','Dispatched','Delivered'];
+    var allSt = isMto ? ['Confirmed','Delayed','Ready','Dispatched','Delivered'] : ['Received','Ready','Dispatched','Delivered'];
     allSt.forEach(function(s) { fH += '<div class="filter-chip' + (currentFilter===s?' active':'') + '" onclick="dFilt(\'' + s + '\')">' + s + ' <span class="fc">' + (counts[s]||0) + '</span></div>'; });
     fH += '<div class="filter-chip' + (currentFilter==='all'?' active':'') + '" onclick="dFilt(\'all\')">All <span class="fc">' + data.length + '</span></div>';
     if (isMto) {
