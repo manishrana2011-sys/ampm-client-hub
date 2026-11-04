@@ -256,6 +256,45 @@
   .os-delivered { background: #e8e8e8; color: #666; }
   .os-received { background: var(--blue-bg); color: var(--blue); }
 
+  /* Detailed breakdown */
+  .breakdown-store {
+    background: var(--white); border-radius: 10px; padding: 18px;
+    border: 1px solid #e8ddd2; margin-bottom: 16px;
+  }
+  .breakdown-store h3 {
+    font-family: 'EB Garamond', Georgia, serif; font-size: 16px;
+    font-weight: 600; color: var(--brown); margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .breakdown-store h3 .total-badge {
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
+    background: var(--brown); color: var(--cream); padding: 3px 12px;
+    border-radius: 10px;
+  }
+  .breakdown-category {
+    margin-bottom: 12px;
+  }
+  .breakdown-category:last-child { margin-bottom: 0; }
+  .cat-header {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; padding: 6px 10px; border-radius: 6px;
+    margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+  }
+  .cat-header.cat-mto { background: var(--blue-bg); color: var(--blue); }
+  .cat-header.cat-alt { background: var(--purple-bg); color: var(--purple); }
+  .cat-header.cat-care { background: var(--green-bg); color: var(--green); }
+  .cat-header .cat-total {
+    font-family: 'EB Garamond', Georgia, serif; font-size: 16px; font-weight: 700;
+  }
+  .sub-row {
+    display: flex; justify-content: space-between; padding: 5px 10px 5px 24px;
+    border-bottom: 1px solid #f5ede4; font-size: 12px;
+  }
+  .sub-row:last-child { border-bottom: none; }
+  .sub-row .sub-label { color: var(--text-mid); }
+  .sub-row .sub-val { font-weight: 600; font-variant-numeric: tabular-nums; min-width: 28px; text-align: right; }
+  .sub-row .sub-val.has-count { color: var(--brown); }
+
   .hidden { display: none !important; }
 
   @media (max-width: 600px) {
@@ -322,6 +361,10 @@
     <!-- Active Orders Summary -->
     <div class="sec-title">Active Orders Across Stores</div>
     <div class="compare-grid" id="activeOrdersGrid"></div>
+
+    <!-- Detailed Message Breakdown -->
+    <div class="sec-title">Detailed Message Breakdown — <span id="breakdownDateLabel">Today</span></div>
+    <div id="detailedBreakdown"></div>
   </div>
 
   <!-- SINGLE STORE VIEW -->
@@ -355,6 +398,12 @@
       <div class="msg-table-wrap" id="msgLogWrap">
         <div class="no-data">No messages found</div>
       </div>
+    </div>
+
+    <!-- Single Store Detailed Breakdown -->
+    <div class="status-section">
+      <div class="sec-title">Message Type Breakdown — <span id="storeBreakdownDateLabel">Today</span></div>
+      <div id="storeDetailedBreakdown"></div>
     </div>
   </div>
 </div>
@@ -470,9 +519,9 @@ function renderAllStores() {
     var logs = allData.logs[s]||[];
     totalMsgs += logs.length;
     logs.forEach(function(l) {
-      var t = (l.template||'').toLowerCase();
-      if (t.indexOf('alt') === 0) totalAlt++;
-      else if (t.indexOf('order') >= 0 || t.indexOf('delay') >= 0 || t.indexOf('ready') >= 0 || t.indexOf('dispatch') >= 0 || t.indexOf('mto') >= 0) totalMTO++;
+      var t = l.template_name || l.template || '';
+      if (t.indexOf('Alt.') === 0) totalAlt++;
+      else if (t==='Order Confirmation'||t==='Delay Intimation'||t==='Ready for Collection'||t==='Post-Dispatch'||t==='MTO Delivered') totalMTO++;
       else totalCare++;
     });
     (allData.mto[s]||[]).forEach(function(r) { if(r.status!=='Delivered') activeMTO++; });
@@ -512,9 +561,9 @@ function renderAllStores() {
     var logs = allData.logs[s]||[];
     var mtoMsgs=0, altMsgs=0, careMsgs=0;
     logs.forEach(function(l) {
-      var t = (l.template||'').toLowerCase();
-      if (t.indexOf('alt') === 0) altMsgs++;
-      else if (t.indexOf('order')>=0 || t.indexOf('delay')>=0 || t.indexOf('ready')>=0 || t.indexOf('dispatch')>=0 || t.indexOf('mto')>=0) mtoMsgs++;
+      var t = l.template_name || l.template || '';
+      if (t.indexOf('Alt.') === 0) altMsgs++;
+      else if (t==='Order Confirmation'||t==='Delay Intimation'||t==='Ready for Collection'||t==='Post-Dispatch'||t==='MTO Delivered') mtoMsgs++;
       else careMsgs++;
     });
     cH += '<div class="compare-card">';
@@ -561,6 +610,94 @@ function renderAllStores() {
     aoH += '</div>';
   });
   document.getElementById('activeOrdersGrid').innerHTML = aoH;
+
+  // Detailed message breakdown
+  renderDetailedBreakdown();
+}
+
+// ── DETAILED MESSAGE BREAKDOWN ──
+function renderDetailedBreakdown() {
+  var dateLabel = selectedDate === new Date().toISOString().slice(0,10) ? 'Today' : selectedDate;
+  document.getElementById('breakdownDateLabel').textContent = dateLabel;
+
+  // Define all template sub-types by category
+  var mtoTemplates = ['Order Confirmation','Delay Intimation','Ready for Collection','Post-Dispatch','MTO Delivered'];
+  var altTemplates = ['Alt. Received','Alt. Ready','Alt. Dispatched','Alt. Delivered'];
+  var careTemplates = ['Thank You','Follow-up'];
+
+  function countTemplates(logs, templates) {
+    var counts = {};
+    templates.forEach(function(t) { counts[t] = 0; });
+    logs.forEach(function(l) {
+      var tName = l.template_name || l.template || '';
+      if (counts[tName] !== undefined) {
+        counts[tName]++;
+      }
+    });
+    return counts;
+  }
+
+  function getCategoryTotal(counts) {
+    var total = 0;
+    for (var k in counts) { total += counts[k]; }
+    return total;
+  }
+
+  function renderSubRows(counts) {
+    var html = '';
+    for (var k in counts) {
+      var v = counts[k];
+      html += '<div class="sub-row"><span class="sub-label">' + esc(k) + '</span><span class="sub-val' + (v > 0 ? ' has-count' : '') + '">' + v + '</span></div>';
+    }
+    return html;
+  }
+
+  var bdH = '';
+  STORES.forEach(function(s) {
+    var logs = allData.logs[s] || [];
+    var mtoCounts = countTemplates(logs, mtoTemplates);
+    var altCounts = countTemplates(logs, altTemplates);
+    var careCounts = countTemplates(logs, careTemplates);
+    var mtoTotal = getCategoryTotal(mtoCounts);
+    var altTotal = getCategoryTotal(altCounts);
+    var careTotal = getCategoryTotal(careCounts);
+    // Count any uncategorized
+    var knownTotal = mtoTotal + altTotal + careTotal;
+    var otherCount = logs.length - knownTotal;
+
+    bdH += '<div class="breakdown-store">';
+    bdH += '<h3>' + STORE_NAMES[s] + ' <span class="total-badge">' + logs.length + ' total messages</span></h3>';
+
+    // MTO category
+    bdH += '<div class="breakdown-category">';
+    bdH += '<div class="cat-header cat-mto">MTO Messages <span class="cat-total">' + mtoTotal + '</span></div>';
+    bdH += renderSubRows(mtoCounts);
+    bdH += '</div>';
+
+    // Alteration category
+    bdH += '<div class="breakdown-category">';
+    bdH += '<div class="cat-header cat-alt">Alteration Messages <span class="cat-total">' + altTotal + '</span></div>';
+    bdH += renderSubRows(altCounts);
+    bdH += '</div>';
+
+    // Client Care category
+    bdH += '<div class="breakdown-category">';
+    bdH += '<div class="cat-header cat-care">Client Care Messages <span class="cat-total">' + careTotal + '</span></div>';
+    bdH += renderSubRows(careCounts);
+    bdH += '</div>';
+
+    // Other/uncategorized
+    if (otherCount > 0) {
+      bdH += '<div class="breakdown-category">';
+      bdH += '<div class="cat-header" style="background:#f5f5f5;color:#666">Other Messages <span class="cat-total">' + otherCount + '</span></div>';
+      bdH += '</div>';
+    }
+
+    bdH += '</div>';
+  });
+
+  if (!bdH) bdH = '<div class="no-data">No message data available</div>';
+  document.getElementById('detailedBreakdown').innerHTML = bdH;
 }
 
 // ── SINGLE STORE VIEW ──
@@ -573,9 +710,9 @@ function renderSingleStore(store) {
   var mtoMsgs=0, altMsgs=0, careMsgs=0;
   var careList = [];
   logs.forEach(function(l) {
-    var t = (l.template||'').toLowerCase();
-    if (t.indexOf('alt') === 0) altMsgs++;
-    else if (t.indexOf('order')>=0 || t.indexOf('delay')>=0 || t.indexOf('ready')>=0 || t.indexOf('dispatch')>=0 || t.indexOf('mto')>=0) mtoMsgs++;
+    var t = l.template_name || l.template || '';
+    if (t.indexOf('Alt.') === 0) altMsgs++;
+    else if (t==='Order Confirmation'||t==='Delay Intimation'||t==='Ready for Collection'||t==='Post-Dispatch'||t==='MTO Delivered') mtoMsgs++;
     else { careMsgs++; careList.push(l); }
   });
 
@@ -664,8 +801,8 @@ function renderSingleStore(store) {
   if (logs.length) {
     var tH = '<table class="msg-table"><thead><tr><th>Time</th><th>Client</th><th>Message Type</th></tr></thead><tbody>';
     logs.forEach(function(l) {
-      var t = (l.template||'').toLowerCase();
-      var bc = t.indexOf('alt')===0 ? 'badge-alt' : (t.indexOf('thank')>=0||t.indexOf('follow')>=0 ? 'badge-care' : 'badge-mto');
+      var t = l.template_name || l.template || '';
+      var bc = t.indexOf('Alt.')===0 ? 'badge-alt' : (t==='Thank You'||t==='Follow-up' ? 'badge-care' : 'badge-mto');
       tH += '<tr><td>' + esc(l.send_time||'') + '</td><td><strong>' + esc(l.client||'') + '</strong></td>';
       tH += '<td><span class="badge ' + bc + '">' + esc(l.template||'') + '</span></td></tr>';
     });
@@ -674,6 +811,56 @@ function renderSingleStore(store) {
   } else {
     document.getElementById('msgLogWrap').innerHTML = '<div class="no-data">No messages found for this date</div>';
   }
+
+  // Single store detailed breakdown
+  renderStoreBreakdown(store, logs);
+}
+
+// ── SINGLE STORE BREAKDOWN ──
+function renderStoreBreakdown(store, logs) {
+  var dateLabel = selectedDate === new Date().toISOString().slice(0,10) ? 'Today' : selectedDate;
+  document.getElementById('storeBreakdownDateLabel').textContent = dateLabel;
+
+  var mtoTemplates = ['Order Confirmation','Delay Intimation','Ready for Collection','Post-Dispatch','MTO Delivered'];
+  var altTemplates = ['Alt. Received','Alt. Ready','Alt. Dispatched','Alt. Delivered'];
+  var careTemplates = ['Thank You','Follow-up'];
+
+  function countT(templates) {
+    var c = {};
+    templates.forEach(function(t){c[t]=0;});
+    logs.forEach(function(l){
+      var n = l.template_name || l.template || '';
+      if(c[n]!==undefined) c[n]++;
+    });
+    return c;
+  }
+  function total(c){ var t=0; for(var k in c) t+=c[k]; return t; }
+
+  var mc = countT(mtoTemplates), ac = countT(altTemplates), cc = countT(careTemplates);
+  var mt = total(mc), at = total(ac), ct = total(cc);
+
+  var h = '<div class="breakdown-store" style="border:none;padding:0">';
+
+  // MTO
+  h += '<div class="breakdown-category">';
+  h += '<div class="cat-header cat-mto">MTO Messages <span class="cat-total">' + mt + '</span></div>';
+  mtoTemplates.forEach(function(t){ h += '<div class="sub-row"><span class="sub-label">' + esc(t) + '</span><span class="sub-val' + (mc[t]>0?' has-count':'') + '">' + mc[t] + '</span></div>'; });
+  h += '</div>';
+
+  // Alt
+  h += '<div class="breakdown-category">';
+  h += '<div class="cat-header cat-alt">Alteration Messages <span class="cat-total">' + at + '</span></div>';
+  altTemplates.forEach(function(t){ h += '<div class="sub-row"><span class="sub-label">' + esc(t) + '</span><span class="sub-val' + (ac[t]>0?' has-count':'') + '">' + ac[t] + '</span></div>'; });
+  h += '</div>';
+
+  // Care
+  h += '<div class="breakdown-category">';
+  h += '<div class="cat-header cat-care">Client Care Messages <span class="cat-total">' + ct + '</span></div>';
+  careTemplates.forEach(function(t){ h += '<div class="sub-row"><span class="sub-label">' + esc(t) + '</span><span class="sub-val' + (cc[t]>0?' has-count':'') + '">' + cc[t] + '</span></div>'; });
+  h += '</div>';
+
+  h += '</div>';
+  document.getElementById('storeDetailedBreakdown').innerHTML = h;
 }
 
 // Initial load
