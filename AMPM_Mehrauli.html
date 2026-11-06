@@ -434,7 +434,7 @@
         <label>Committed Delivery Date</label><input type="date" id="mtoDD">
         <label>Payment Status</label>
         <div class="bal-row">
-          <select id="mtoPay" onchange="togBal()"><option value="Paid in Full">Paid in Full</option><option value="50% Advance Paid">50% Advance</option><option value="Advance Paid">Advance (custom)</option></select>
+          <select id="mtoPay" onchange="togBal()"><option value="Paid in Full">Paid Full</option><option value="Balance Pending">Balance Pending</option></select>
           <input type="text" id="mtoBal" placeholder="Balance &#8377;" style="display:none">
         </div>
       </div>
@@ -795,7 +795,7 @@
         if (selectedTemplate === 'mto_delay') existing.dueDate = document.getElementById('mtoND').value;
         sbUpsert('mto_orders', existing);
       } else {
-        var entry = {id: genId(), client: cn, status: statusMap[selectedTemplate], lastUpdate: now, dueDate:'', payment:'', balance:'', style:'', createdAt: now};
+        var entry = {id: genId(), client: cn, client_phone: phone, status: statusMap[selectedTemplate], lastUpdate: now, dueDate:'', payment:'', balance:'', style:'', createdAt: now};
         if (selectedTemplate === 'mto_confirm') {
           entry.dueDate = document.getElementById('mtoDD').value;
           entry.payment = document.getElementById('mtoPay').value;
@@ -814,7 +814,7 @@
         aExist.lastUpdate = now;
         sbUpsert('alteration_orders', aExist);
       } else {
-        var aEntry = {id: genId(), client: cn, status: altMap[selectedTemplate], lastUpdate: now, style:'', details:'', dueDate:'', createdAt: now};
+        var aEntry = {id: genId(), client: cn, client_phone: phone, status: altMap[selectedTemplate], lastUpdate: now, style:'', details:'', dueDate:'', createdAt: now};
         if (selectedTemplate === 'alt_received') {
           aEntry.style = document.getElementById('altSt').value.trim();
           aEntry.details = document.getElementById('altDt').value.trim();
@@ -829,7 +829,7 @@
     var tplNames = {mto_confirm:'Order Confirmation', mto_delay:'Delay Intimation', mto_ready:'Ready for Collection', mto_dispatch:'Post-Dispatch', mto_delivered:'MTO Delivered', alt_received:'Alt. Received', alt_ready:'Alt. Ready', alt_dispatch:'Alt. Dispatched', alt_delivered:'Alt. Delivered', care_thankyou:'Thank You', care_followup:'Follow-up'};
     var sendTime = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
     messageLog.unshift({client: cn, template: tplNames[selectedTemplate], time: sendTime});
-    sbInsert('message_logs', {client: cn, template: tplNames[selectedTemplate], send_time: sendTime, log_date: new Date().toISOString().slice(0,10), client_name: cn, template_name: tplNames[selectedTemplate]});
+    sbInsert('message_logs', {client: cn, client_phone: phone, template: tplNames[selectedTemplate], send_time: sendTime, log_date: new Date().toISOString().slice(0,10), client_name: cn, template_name: tplNames[selectedTemplate]});
     renderLog();
 
     window.open(url, 'ampm_whatsapp');

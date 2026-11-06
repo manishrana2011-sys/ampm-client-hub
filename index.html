@@ -344,7 +344,7 @@
   <div class="toolbar">
     <div class="toolbar-left">
       <div class="date-label">Activity Dashboard</div>
-      <input type="date" id="dateFilter" class="date-pick">
+      <input type="date" id="dateFrom" class="date-pick" title="From"> <span style="color:var(--text-light);font-size:13px;margin:0 2px;">to</span> <input type="date" id="dateTo" class="date-pick" title="To">
     </div>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <span class="last-refresh" id="lastRefresh"></span>
@@ -445,12 +445,19 @@ function sbFetch(table, query) {
 
 var allData = { mto:{}, alt:{}, logs:{} };
 var currentStore = 'all';
-var selectedDate = new Date().toISOString().slice(0,10);
+var dateTo = new Date().toISOString().slice(0,10);
+var df = new Date(); df.setDate(df.getDate() - 7);
+var dateFrom = df.toISOString().slice(0,10);
 
-// Set date picker
-document.getElementById('dateFilter').value = selectedDate;
-document.getElementById('dateFilter').addEventListener('change', function() {
-  selectedDate = this.value;
+// Set date pickers
+document.getElementById('dateFrom').value = dateFrom;
+document.getElementById('dateTo').value = dateTo;
+document.getElementById('dateFrom').addEventListener('change', function() {
+  dateFrom = this.value;
+  loadAll();
+});
+document.getElementById('dateTo').addEventListener('change', function() {
+  dateTo = this.value;
   loadAll();
 });
 
@@ -477,8 +484,8 @@ function loadAll() {
     (d||[]).forEach(function(r) { if(allData.alt[r.store]) allData.alt[r.store].push(r); });
   }));
 
-  // Load message logs for selected date
-  promises.push(sbFetch('message_logs','log_date=eq.'+selectedDate+'&order=id.desc').then(function(d) {
+  // Load message logs for date range
+  promises.push(sbFetch('message_logs','log_date=gte.'+dateFrom+'&log_date=lte.'+dateTo+'&order=id.desc').then(function(d) {
     allData.logs = {};
     STORES.forEach(function(s) { allData.logs[s] = []; });
     (d||[]).forEach(function(r) { if(allData.logs[r.store]) allData.logs[r.store].push(r); });
@@ -641,7 +648,7 @@ function renderAllStores() {
 
 // ── DETAILED MESSAGE BREAKDOWN ──
 function renderDetailedBreakdown() {
-  var dateLabel = selectedDate === new Date().toISOString().slice(0,10) ? 'Today' : selectedDate;
+  var dateLabel = dateFrom + ' to ' + dateTo;
   document.getElementById('breakdownDateLabel').textContent = dateLabel;
 
   // Define all template sub-types by category
@@ -819,7 +826,7 @@ function renderSingleStore(store) {
   document.getElementById('careMessages').innerHTML = '<div class="order-list">' + ccH + '</div>';
 
   // Full message log
-  var dateLabel = selectedDate === new Date().toISOString().slice(0,10) ? 'Today' : selectedDate;
+  var dateLabel = dateFrom + ' to ' + dateTo;
   document.getElementById('logDateLabel').textContent = dateLabel;
 
   if (logs.length) {
@@ -842,7 +849,7 @@ function renderSingleStore(store) {
 
 // ── SINGLE STORE BREAKDOWN ──
 function renderStoreBreakdown(store, logs) {
-  var dateLabel = selectedDate === new Date().toISOString().slice(0,10) ? 'Today' : selectedDate;
+  var dateLabel = dateFrom + ' to ' + dateTo;
   document.getElementById('storeBreakdownDateLabel').textContent = dateLabel;
 
   var mtoTemplates = ['Order Confirmation','Delay Intimation','Ready for Collection','Post-Dispatch','MTO Delivered'];
