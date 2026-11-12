@@ -829,7 +829,7 @@
     var tplNames = {mto_confirm:'Order Confirmation', mto_delay:'Delay Intimation', mto_ready:'Ready for Collection', mto_dispatch:'Post-Dispatch', mto_delivered:'MTO Delivered', alt_received:'Alt. Received', alt_ready:'Alt. Ready', alt_dispatch:'Alt. Dispatched', alt_delivered:'Alt. Delivered', care_thankyou:'Thank You', care_followup:'Follow-up'};
     var sendTime = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
     messageLog.unshift({client: cn, template: tplNames[selectedTemplate], time: sendTime});
-    sbInsert('message_logs', {client: cn, client_phone: phone, template: tplNames[selectedTemplate], send_time: sendTime, log_date: new Date().toISOString().slice(0,10), client_name: cn, template_name: tplNames[selectedTemplate]});
+    sbInsert('message_logs', {client: cn, template: tplNames[selectedTemplate], send_time: sendTime, log_date: new Date().toISOString().slice(0,10), client_name: cn, template_name: tplNames[selectedTemplate]});
     renderLog();
 
     window.open(url, 'ampm_whatsapp');
