@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AMPM - Client Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
   --cream: #F4ECE3;
@@ -293,6 +294,115 @@ tbody tr:last-child td { border-bottom: none; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Tabs */
+.tab-bar {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.tab-btn {
+  flex: 1;
+  padding: 14px 16px;
+  border: none;
+  background: var(--white);
+  font-family: 'EB Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+  border-bottom: 3px solid transparent;
+}
+.tab-btn.active {
+  color: var(--brown);
+  border-bottom-color: var(--brown);
+  background: rgba(134,70,36,0.04);
+}
+.tab-btn:hover:not(.active) { background: rgba(134,70,36,0.02); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Upload Section */
+.upload-box {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 28px 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+.upload-box h3 {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--brown);
+  margin-bottom: 6px;
+}
+.upload-box p {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 36px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 16px;
+}
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: var(--brown);
+  background: rgba(134,70,36,0.03);
+}
+.drop-zone .icon { font-size: 2rem; margin-bottom: 8px; }
+.drop-zone .label { font-size: 0.9rem; color: var(--text); font-weight: 500; }
+.drop-zone .sublabel { font-size: 0.75rem; color: var(--text-light); margin-top: 4px; }
+.file-info {
+  display: none;
+  background: var(--green-light);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  color: var(--green);
+}
+.progress-bar {
+  display: none;
+  background: var(--border);
+  border-radius: 6px;
+  height: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.progress-bar .fill {
+  height: 100%;
+  background: var(--brown);
+  border-radius: 6px;
+  width: 0%;
+  transition: width 0.3s;
+}
+.upload-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.preview-table {
+  overflow-x: auto;
+  margin-bottom: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.preview-table table {
+  font-size: 0.72rem;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .header h1 { font-size: 1.4rem; letter-spacing: 2px; }
@@ -313,6 +423,12 @@ tbody tr:last-child td { border-bottom: none; }
 </div>
 
 <div class="content">
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('lookup')">Client Lookup</button>
+    <button class="tab-btn" onclick="switchTab('upload')">Upload Data</button>
+  </div>
+
+  <div id="tabLookup" class="tab-panel active">
   <div class="search-box">
     <label>Search Client Purchase History</label>
     <div class="search-row">
@@ -404,6 +520,71 @@ tbody tr:last-child td { border-bottom: none; }
     </div>
     <div class="record-count" id="recordCount"></div>
   </div>
+  </div><!-- end tabLookup -->
+
+  <div id="tabUpload" class="tab-panel">
+    <div class="upload-box">
+      <h3>Upload Monthly Client Data</h3>
+      <p>Upload your billing system Excel file (.xlsx or .csv). The system will auto-map columns and insert records into the database. Duplicate records (same phone + invoice + date) will be skipped.</p>
+
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <div class="icon">📁</div>
+        <div class="label">Click to select file or drag &amp; drop</div>
+        <div class="sublabel">Accepts .xlsx and .csv files</div>
+      </div>
+      <input type="file" id="fileInput" accept=".xlsx,.csv" style="display:none" onchange="handleFile(this.files[0])">
+
+      <div class="file-info" id="fileInfo"></div>
+      <div id="uploadStatus" class="status-msg"></div>
+
+      <div id="previewSection" style="display:none;">
+        <h3 style="margin-bottom:12px;">Preview (first 5 rows)</h3>
+        <div class="preview-table" id="previewTable"></div>
+      </div>
+
+      <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
+      <div id="progressText" style="display:none;font-size:0.8rem;color:var(--text-light);margin-bottom:12px;"></div>
+
+      <div class="upload-actions" id="uploadActions" style="display:none;">
+        <button class="btn btn-primary" id="uploadBtn" onclick="startUpload()">Upload to Database</button>
+        <button class="btn" style="background:var(--border);color:var(--text);" onclick="resetUpload()">Clear</button>
+      </div>
+    </div>
+
+    <div class="upload-box" style="margin-top:0;">
+      <h3>Column Mapping Reference</h3>
+      <p style="margin-bottom:8px;">Your Excel file should have these columns (in any order):</p>
+      <div class="table-wrap">
+        <table style="font-size:0.75rem;">
+          <thead><tr><th>Your Excel Column</th><th>Maps To</th></tr></thead>
+          <tbody>
+            <tr><td>Store Name</td><td>Store</td></tr>
+            <tr><td>Customer Name</td><td>Client Name</td></tr>
+            <tr><td>Customer Mobile</td><td>Client Phone</td></tr>
+            <tr><td>Bill Date</td><td>Purchase Date</td></tr>
+            <tr><td>Bill Number</td><td>Invoice No</td></tr>
+            <tr><td>Amount</td><td>Amount</td></tr>
+            <tr><td>MRP</td><td>MRP</td></tr>
+            <tr><td>Quantity</td><td>Quantity</td></tr>
+            <tr><td>Department</td><td>Department</td></tr>
+            <tr><td>Sub Category</td><td>Sub Category</td></tr>
+            <tr><td>Product Category Name</td><td>Product Category</td></tr>
+            <tr><td>Article Number</td><td>Article Number</td></tr>
+            <tr><td>Color</td><td>Color</td></tr>
+            <tr><td>Size</td><td>Size</td></tr>
+            <tr><td>Quarter Season Name</td><td>Season</td></tr>
+            <tr><td>Product Level Disc%</td><td>Discount %</td></tr>
+            <tr><td>Bill Time</td><td>Bill Time</td></tr>
+            <tr><td>Customer Code</td><td>Customer Code</td></tr>
+            <tr><td>New customer Type</td><td>Customer Type</td></tr>
+            <tr><td>CA City Name</td><td>City</td></tr>
+            <tr><td>CA State Name</td><td>State</td></tr>
+            <tr><td>Country</td><td>Country</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- end tabUpload -->
 </div>
 
 <script>
@@ -684,6 +865,239 @@ function showStatus(id, msg, type) {
   var el = document.getElementById(id);
   el.textContent = msg;
   el.className = 'status-msg ' + type;
+}
+
+// ===== Tab Switching =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(function(b, i) {
+    b.classList.toggle('active', (tab === 'lookup' && i === 0) || (tab === 'upload' && i === 1));
+  });
+  document.getElementById('tabLookup').classList.toggle('active', tab === 'lookup');
+  document.getElementById('tabUpload').classList.toggle('active', tab === 'upload');
+}
+
+// ===== Upload Data =====
+var parsedRows = [];
+var COLUMN_MAP = {
+  'store name': 'store',
+  'customer name': 'client_name',
+  'customer mobile': 'client_phone',
+  'bill date': 'purchase_date',
+  'bill number': 'invoice_no',
+  'product level disc%': 'discount_pct',
+  'amount': 'amount',
+  'bill time': 'bill_time',
+  'customer code': 'customer_code',
+  'quantity': 'quantity',
+  'department': 'department',
+  'sub category': 'sub_category',
+  'mrp': 'mrp',
+  'color': 'color',
+  'size': 'size',
+  'article number': 'article_number',
+  'quarter season name': 'quarter_season',
+  'product category name': 'product_category',
+  'ca city name': 'city',
+  'ca state name': 'state',
+  'new customer type': 'customer_type',
+  'country': 'country'
+};
+
+// Drag and drop
+var dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('dragover'); });
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+
+function handleFile(file) {
+  if (!file) return;
+  var ext = file.name.split('.').pop().toLowerCase();
+  if (ext !== 'xlsx' && ext !== 'csv') {
+    showStatus('uploadStatus', 'Please select an .xlsx or .csv file', 'error');
+    return;
+  }
+
+  hideEl('uploadStatus');
+  document.getElementById('fileInfo').style.display = 'block';
+  document.getElementById('fileInfo').textContent = '📄 ' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB) — Reading...';
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = new Uint8Array(e.target.result);
+      var wb = XLSX.read(data, { type: 'array', cellDates: true });
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+      if (!json.length) {
+        showStatus('uploadStatus', 'File is empty or has no data rows', 'error');
+        return;
+      }
+
+      // Map columns
+      var headers = Object.keys(json[0]);
+      var headerMap = {};
+      headers.forEach(function(h) {
+        var key = h.trim().toLowerCase();
+        if (COLUMN_MAP[key]) headerMap[h] = COLUMN_MAP[key];
+      });
+
+      var mappedCount = Object.keys(headerMap).length;
+      if (mappedCount < 5) {
+        showStatus('uploadStatus', 'Only ' + mappedCount + ' columns matched. Check your file format against the column mapping reference below.', 'error');
+        return;
+      }
+
+      // Convert rows
+      parsedRows = json.map(function(row) {
+        var mapped = {};
+        for (var h in headerMap) {
+          var val = row[h];
+          var dbCol = headerMap[h];
+
+          if (dbCol === 'purchase_date' && val) {
+            if (val instanceof Date) {
+              mapped[dbCol] = val.toISOString().slice(0, 10);
+            } else {
+              var s = val.toString();
+              // DD/MM/YYYY to YYYY-MM-DD
+              var parts = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+              if (parts) {
+                mapped[dbCol] = parts[3] + '-' + parts[2].padStart(2,'0') + '-' + parts[1].padStart(2,'0');
+              } else {
+                mapped[dbCol] = s;
+              }
+            }
+          } else if (dbCol === 'client_phone' && val) {
+            mapped[dbCol] = val.toString().replace(/\D/g, '').slice(-10);
+          } else if ((dbCol === 'amount' || dbCol === 'mrp' || dbCol === 'quantity' || dbCol === 'discount_pct') && val !== '') {
+            mapped[dbCol] = parseFloat(val) || 0;
+          } else {
+            mapped[dbCol] = val !== '' ? val.toString() : null;
+          }
+        }
+        return mapped;
+      });
+
+      // Filter out rows with no client_phone or no purchase_date
+      parsedRows = parsedRows.filter(function(r) {
+        return r.client_phone && r.purchase_date;
+      });
+
+      document.getElementById('fileInfo').textContent = '✅ ' + file.name + ' — ' + parsedRows.length + ' valid rows found (' + mappedCount + ' columns mapped)';
+
+      // Show preview
+      showPreview(parsedRows.slice(0, 5));
+      document.getElementById('previewSection').style.display = 'block';
+      document.getElementById('uploadActions').style.display = 'flex';
+
+    } catch(err) {
+      showStatus('uploadStatus', 'Error reading file: ' + err.message, 'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function showPreview(rows) {
+  if (!rows.length) return;
+  var cols = Object.keys(rows[0]).filter(function(k) { return rows[0][k] !== null; });
+  var html = '<table><thead><tr>';
+  cols.forEach(function(c) { html += '<th>' + esc(c) + '</th>'; });
+  html += '</tr></thead><tbody>';
+  rows.forEach(function(r) {
+    html += '<tr>';
+    cols.forEach(function(c) { html += '<td>' + esc(r[c] != null ? r[c].toString() : '') + '</td>'; });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('previewTable').innerHTML = html;
+}
+
+function startUpload() {
+  if (!parsedRows.length) return;
+
+  var btn = document.getElementById('uploadBtn');
+  btn.disabled = true;
+  btn.textContent = 'Uploading...';
+  document.getElementById('progressBar').style.display = 'block';
+  document.getElementById('progressText').style.display = 'block';
+  hideEl('uploadStatus');
+
+  var BATCH = 200;
+  var total = parsedRows.length;
+  var uploaded = 0;
+  var skipped = 0;
+  var errors = 0;
+
+  function uploadBatch(start) {
+    var batch = parsedRows.slice(start, start + BATCH);
+    if (!batch.length) {
+      finishUpload(uploaded, skipped, errors, total);
+      return;
+    }
+
+    fetch(SB_URL + '/client_purchases', {
+      method: 'POST',
+      headers: sbHeaders('return=minimal,resolution=ignore-duplicates'),
+      body: JSON.stringify(batch)
+    })
+    .then(function(res) {
+      if (res.ok || res.status === 201) {
+        uploaded += batch.length;
+      } else {
+        return res.text().then(function(t) {
+          // Try inserting one by one on error
+          console.log('Batch error at ' + start + ': ' + t);
+          errors += batch.length;
+        });
+      }
+    })
+    .catch(function() {
+      errors += batch.length;
+    })
+    .then(function() {
+      var done = Math.min(start + BATCH, total);
+      var pct = Math.round((done / total) * 100);
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressText').textContent = done + ' / ' + total + ' rows processed (' + pct + '%)';
+
+      if (done < total) {
+        setTimeout(function() { uploadBatch(done); }, 100);
+      } else {
+        finishUpload(uploaded, skipped, errors, total);
+      }
+    });
+  }
+
+  uploadBatch(0);
+}
+
+function finishUpload(uploaded, skipped, errors, total) {
+  var btn = document.getElementById('uploadBtn');
+  btn.disabled = false;
+  btn.textContent = 'Upload to Database';
+
+  if (errors === 0) {
+    showStatus('uploadStatus', '✅ Upload complete! ' + uploaded + ' rows uploaded successfully.', 'success');
+  } else {
+    showStatus('uploadStatus', '⚠️ Upload finished. ' + uploaded + ' rows uploaded, ' + errors + ' rows had errors. Check console for details.', 'error');
+  }
+}
+
+function resetUpload() {
+  parsedRows = [];
+  document.getElementById('fileInput').value = '';
+  document.getElementById('fileInfo').style.display = 'none';
+  document.getElementById('previewSection').style.display = 'none';
+  document.getElementById('uploadActions').style.display = 'none';
+  document.getElementById('progressBar').style.display = 'none';
+  document.getElementById('progressText').style.display = 'none';
+  hideEl('uploadStatus');
+  document.getElementById('progressFill').style.width = '0%';
 }
 </script>
 
