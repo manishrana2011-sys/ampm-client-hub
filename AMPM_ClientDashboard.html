@@ -961,7 +961,10 @@ function handleFile(file) {
 
           if (dbCol === 'purchase_date' && val) {
             if (val instanceof Date) {
-              mapped[dbCol] = val.toISOString().slice(0, 10);
+              var y = val.getFullYear();
+              var m = (val.getMonth() + 1).toString().padStart(2, '0');
+              var dd = val.getDate().toString().padStart(2, '0');
+              mapped[dbCol] = y + '-' + m + '-' + dd;
             } else {
               var s = val.toString();
               // DD/MM/YYYY to YYYY-MM-DD
@@ -979,6 +982,13 @@ function handleFile(file) {
           } else {
             mapped[dbCol] = val !== '' ? val.toString() : null;
           }
+        }
+        // Normalize store names to match existing data
+        if (mapped.store) {
+          var s = mapped.store.toLowerCase();
+          if (s.indexOf('emporio') !== -1) mapped.store = 'Emporio';
+          else if (s.indexOf('khan') !== -1) mapped.store = 'Khan Market';
+          else if (s.indexOf('kila') !== -1 || s.indexOf('mehrauli') !== -1) mapped.store = 'Mehrauli';
         }
         return mapped;
       });
