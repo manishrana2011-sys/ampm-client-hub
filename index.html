@@ -445,9 +445,9 @@ function sbFetch(table, query) {
 
 var allData = { mto:{}, alt:{}, logs:{} };
 var currentStore = 'all';
-var dateTo = new Date().toISOString().slice(0,10);
+var _dn = new Date(); var dateTo = _dn.getFullYear()+'-'+String(_dn.getMonth()+1).padStart(2,'0')+'-'+String(_dn.getDate()).padStart(2,'0');
 var df = new Date(); df.setDate(df.getDate() - 7);
-var dateFrom = df.toISOString().slice(0,10);
+var dateFrom = df.getFullYear()+'-'+String(df.getMonth()+1).padStart(2,'0')+'-'+String(df.getDate()).padStart(2,'0');
 
 // Set date pickers
 document.getElementById('dateFrom').value = dateFrom;
@@ -1030,7 +1030,7 @@ function exportAllToExcel() {
 
     // Generate filename
     var storeName = currentStore === 'all' ? 'AllStores' : STORE_NAMES[currentStore].replace(/\s/g,'');
-    var today = new Date().toISOString().slice(0,10);
+    var _dt = new Date(); var today = _dt.getFullYear()+'-'+String(_dt.getMonth()+1).padStart(2,'0')+'-'+String(_dt.getDate()).padStart(2,'0');
     var filename = 'AMPM_' + storeName + '_Report_' + today + '.xlsx';
 
     XLSX.writeFile(wb, filename);
